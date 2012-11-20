@@ -41,7 +41,7 @@ class DbAccessorTest extends Specification{
     
     "After saving friendship A N Other -> Som Eguy be able to read in the user A N Other with this friend included" in {
       
-      running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
+      running(FakeApplication()){
       
 	      DatabaseAccessor.createUser(user)
 	      DatabaseAccessor.createUser(otherUser)
@@ -55,6 +55,23 @@ class DbAccessorTest extends Specification{
       }
       
     }
+    
+    "After creating a game between A N Other and Som Eguy you can withdraw it with either account" in {
+        
+        running(FakeApplication()){
+      
+	      DatabaseAccessor.createUser(user)
+	      DatabaseAccessor.createUser(otherUser)
+	      
+	      DatabaseAccessor.createGame(user, otherUser)
+	      
+	      DatabaseAccessor.getGames(user.name).head.black.equals(otherUser)
+	      
+      }
+        
+    }
+    
+    
     
   }
   

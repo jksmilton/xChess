@@ -10,6 +10,7 @@ class UserTest extends Specification {
 	
     var user = new ChessUser("A N Other", "ANOther@somee.ma.il")
     var friend = new ChessUser("N U friend", "NUfriend@fr.ei.nd")
+    
     "have no friends to start with" in {
       
       user.friends.size == 0
