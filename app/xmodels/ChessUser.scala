@@ -1,20 +1,22 @@
-package models
+package xmodels
 import scala.collection.immutable.List
 
-class User (name: String, email: String){
+case class ChessUser (name: String, email: String){
 
-  private var freinds = List()
+  var freinds = List[ChessUser]()
   
-  def addFreind(username: User) : String = {
+  def addFreind(username: ChessUser) : String = {
     
     if(!(freinds contains username)){
-    	username :: freinds
+    	freinds ::= username
     	return "freind added"
     } else {
     	return username + " is already a freind"
     }
     
   }
+  
+  
   
   override def toString () : String = name
   
