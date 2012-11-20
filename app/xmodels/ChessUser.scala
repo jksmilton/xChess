@@ -3,20 +3,20 @@ import scala.collection.immutable.List
 
 case class ChessUser (name: String, email: String){
 
-  var freinds = List[ChessUser]()
+  var friends = List[ChessUser]()
   
-  def addFreind(username: ChessUser) : String = {
+  def addFriend(username: ChessUser) : String = {
     
-    if(!(freinds contains username)){
-    	freinds ::= username
-    	return "freind added"
+    if(!(friends contains username)){
+    	friends ::= username
+    	return "friend added"
     } else {
-    	return username + " is already a freind"
+    	return username + " is already a friend"
     }
     
   }
   
-  
+  override def equals(obj : Any) : Boolean = name.equals(obj.toString())
   
   override def toString () : String = name
   

@@ -9,10 +9,10 @@ class UserTest extends Specification {
   "A new user called A N Other at email address ANOther@somee.ma.il" should {
 	
     var user = new ChessUser("A N Other", "ANOther@somee.ma.il")
-    var freind = new ChessUser("N U Freind", "NUFreind@fr.ei.nd")
-    "have no freinds to start with" in {
+    var friend = new ChessUser("N U friend", "NUfriend@fr.ei.nd")
+    "have no friends to start with" in {
       
-      user.freinds.size == 0
+      user.friends.size == 0
       
     }
     
@@ -28,29 +28,29 @@ class UserTest extends Specification {
       
     }
     
-    "after adding a new freind (N U Freind, NUFreind@fr.ei.nd, respond freind added" in {
-      var response = user.addFreind(freind)
-      response.equals("freind added")
+    "after adding a new friend (N U friend, NUfriend@fr.ei.nd, respond friend added" in {
+      var response = user.addFriend(friend)
+      response.equals("friend added")
       
     }
     
-    "and have one freind" in {
+    "and have one friend" in {
       
-      user.freinds.size == 1
-      
-    }
-    
-    "the freind should have the name N U Freind and email address NUFreind@fr.ei.nd" in {
-      
-      user.freinds.last.name.equals("N U Freind")
-      user.freinds.last.email.equals("NUFreind@fr.ei.nd")      
+      user.friends.size == 1
       
     }
     
-    "if the freind is readded, respond with an error message" in {
+    "the friend should have the name N U friend and email address NUfriend@fr.ei.nd" in {
       
-      var response = user.addFreind(freind)
-      response.equals(freind + " is already a freind")
+      user.friends.last.name.equals("N U friend")
+      user.friends.last.email.equals("NUfriend@fr.ei.nd")      
+      
+    }
+    
+    "if the friend is readded, respond with an error message" in {
+      
+      var response = user.addFriend(friend)
+      response.equals(friend + " is already a friend")
       
     }
     

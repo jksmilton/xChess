@@ -8,18 +8,51 @@ class DbAccessorTest extends Specification{
   "A clean database" should{
     
     var user = new ChessUser("A N Other","ANOther@somee.ma.il")
-    
-    "have 0 entries" in {
-      
-      //DatabaseAccessor.all.size == 0
-      
+    var otherUser = new ChessUser("Som Eguy", "SomEguy@anadd.re.ss")
+    "have 0 user entries" in {
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
+    	  DatabaseAccessor.allUsers.size == 0
+      }
     }
     
-    "have 1 entry after adding a single user" in {
+    "have 1 user entry after adding a single user" in {
       
-      DatabaseAccessor.createUser(user)
-      0 == 1
-     // DatabaseAccessor.all.size == 1
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
+      
+	      DatabaseAccessor.createUser(user)
+	      
+	      DatabaseAccessor.allUsers.size == 1
+      
+      }
+    }
+    
+    "that entry should be equal to user A N Other" in {
+      
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
+      
+	      DatabaseAccessor.createUser(user)
+	      
+	      var retreivedUser = DatabaseAccessor.getUser(user.name)
+	      
+	      user.name.equals(retreivedUser.name)
+      
+      }
+    }
+    
+    "After saving friendship A N Other -> Som Eguy be able to read in the user A N Other with this friend included" in {
+      
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
+      
+	      DatabaseAccessor.createUser(user)
+	      DatabaseAccessor.createUser(otherUser)
+	      
+	      DatabaseAccessor.createFriendship(user, otherUser)
+	      
+	      var dbUser = DatabaseAccessor.getUser(user.name)	      
+      
+	      dbUser.friends.contains(otherUser)
+	      
+      }
       
     }
     
