@@ -35,6 +35,8 @@ CREATE TABLE transcripts (
 	id SERIAL,
 	game integer REFERENCES games(id),
 	player varchar(255) REFERENCES xusers(username),
+	move varchar(255),
+	timePlayed timestamp, 
 	PRIMARY KEY (id)
 );
  

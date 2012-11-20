@@ -5,6 +5,8 @@ case class ChessUser (name: String, email: String){
 
   var friends = List[ChessUser]()
   
+  var games = List[Game]()
+  
   def addFriend(username: ChessUser) : String = {
     
     if(!(friends contains username)){

@@ -14,13 +14,24 @@ object DatabaseAccessor {
       val getUsers = SQL("Select username, email from xusers")
       
       returnUsers = getUsers().map(row =>
-        new ChessUser(row[String]("username"), row[String]("email"))
+        parseIntoUser(row[String]("username"), row[String]("email"))
       ).toList
 	      
     }
     return returnUsers
   }
   
+  def parseIntoUser(name : String, email : String) : ChessUser = {
+    
+    var user =  new ChessUser(name, email)
+    	
+    	user.friends = getFriends(user.name)
+    	
+    	user.games = getGames(user.name)
+    	
+    	return user
+    
+  }
   
   def getUser(username : String) : ChessUser = {
     
@@ -28,11 +39,8 @@ object DatabaseAccessor {
       
     	var row = SQL("Select username, email from xusers where username = {name}").on("name" -> username).apply().head
     	
-    	var user =  new ChessUser(row[String]("username"), row[String]("email"))
+    	return parseIntoUser(row[String]("username"), row[String]("email"))
     	
-    	user.friends = getFriends(user.name)
-    	
-    	return user
     	
     }
     
@@ -61,7 +69,7 @@ object DatabaseAccessor {
           return SQL("select * from games where white = {user} OR black = {user}").on(
         	"user" -> user
           ).apply().map( row=>
-          	new Game(row[Long]("id"), getUser(row[String]("white")), getUser(row[String]("black")), List[String]())
+          	new Game(row[Long]("id"), row[String]("white"), row[String]("black"), List[String]())
           ).toList
           
       }
@@ -97,7 +105,6 @@ object DatabaseAccessor {
     
   }
   
-
   def createGame(white : ChessUser, black : ChessUser) : Long = {
       
       DB.withConnection{ implicit conn =>
@@ -109,6 +116,33 @@ object DatabaseAccessor {
          
       }
       
+  }
+  
+  def addMove(gameID : Long, player : String, move : String) {
+    
+    DB.withTransaction{ implicit conn =>
+      
+      SQL("insert into transcripts(game, player, move) values({game}, {player}, {move})").on(
+    		  
+          "game" -> gameID,
+          "player" -> player,
+          "move" -> move          
+      )
+      
+      conn.commit()
+      
+    }
+    
+  }
+  
+  def getTranscript(gameID : Long) : List[String] = {
+    
+    DB.withConnection {
+      
+      //return SQL("select move )
+      
+    }
+    
   }
   
 }
