@@ -139,7 +139,8 @@ object DatabaseAccessor {
     
     DB.withConnection {
       
-      //return SQL("select move )
+      return SQL("select move, player from transcripts where  game = {gameID}").on("gameID" = gameID).apply().map()
+      
       
     }
     
