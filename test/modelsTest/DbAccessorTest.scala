@@ -69,9 +69,47 @@ class DbAccessorTest extends Specification{
 	      
       }
         
+    
+        
     }
     
-    
+    "After submitting moves to a game, they can be withdrawn in the transcript in the correct order" in {
+      
+      running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
+      
+	      DatabaseAccessor.createUser(user)
+	      DatabaseAccessor.createUser(otherUser)
+	      
+	      var gameID = DatabaseAccessor.createGame(user, otherUser)
+	      
+	      var moveList = List("e4", "e5", "Nf3", "Nc6")
+	      
+	      DatabaseAccessor.addMove(gameID, user.name, "e4")
+	      DatabaseAccessor.addMove(gameID, otherUser.name, "e5")
+	      DatabaseAccessor.addMove(gameID, user.name, "Nf3")
+	      DatabaseAccessor.addMove(gameID, otherUser.name, "Nc6")
+	      
+	      var storedMoveList = DatabaseAccessor.getTranscript(gameID)	      
+	      
+	      var equivalent = true
+	      
+	      
+	      
+	      for(i <- 0 to 3){
+	        
+	        if(moveList(i) != storedMoveList(i)){
+	          
+	          equivalent = false
+	          
+	        }
+	        
+	      }
+	      
+	      equivalent
+	      
+      }
+      
+    }
     
   }
   

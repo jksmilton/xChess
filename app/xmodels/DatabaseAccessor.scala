@@ -37,8 +37,14 @@ object DatabaseAccessor {
     
     DB.withConnection{ implicit conn =>
       
-    	var row = SQL("Select username, email from xusers where username = {name}").on("name" -> username).apply().head
+    	var rows = SQL("Select username, email from xusers where username = {name}").on("name" -> username).apply()
     	
+    	if(rows.length == 0){
+    	  
+    	  return null
+    	  
+    	}
+    	var row = rows.head
     	return parseIntoUser(row[String]("username"), row[String]("email"))
     	
     	
@@ -69,7 +75,7 @@ object DatabaseAccessor {
           return SQL("select * from games where white = {user} OR black = {user}").on(
         	"user" -> user
           ).apply().map( row=>
-          	new Game(row[Long]("id"), row[String]("white"), row[String]("black"), List[String]())
+          	new Game(row[Long]("id"), row[String]("white"), row[String]("black"), getTranscript(row[Long]("id")))
           ).toList
           
       }
@@ -126,8 +132,9 @@ object DatabaseAccessor {
     		  
           "game" -> gameID,
           "player" -> player,
-          "move" -> move          
-      )
+          "move" -> move
+          
+      ).executeInsert().head
       
       conn.commit()
       
@@ -135,11 +142,16 @@ object DatabaseAccessor {
     
   }
   
+  
   def getTranscript(gameID : Long) : List[String] = {
     
-    DB.withConnection {
+    DB.withConnection { implicit conn =>
       
-      return SQL("select move, player from transcripts where  game = {gameID}").on("gameID" = gameID).apply().map()
+      return SQL("select move from transcripts where game = {gameID} order by timePlayed").on(
+          "gameID" -> gameID
+          ).apply().map( row=> 
+            new String(row[String]("move"))
+          ).toList
       
       
     }
