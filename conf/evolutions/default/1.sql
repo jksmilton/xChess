@@ -40,6 +40,31 @@ CREATE TABLE transcripts (
 	PRIMARY KEY (id)
 );
  
+-- CREATE TABLE pending_friend_requests
+
+CREATE TABLE pending_friend_requests (
+
+	id SERIAL,
+	requester varchar(255) REFERENCES xusers(username),
+	requestee varchar(255) REFERENCES xusers(username),
+	timeSubmitted timestamp,
+	PRIMARY KEY (id)
+
+);
+
+
+CREATE TABLE pending_game_requests (
+
+	id SERIAL,
+	requester varchar(255) REFERENCES xusers(username),
+	requestee varchar(255) REFERENCES xusers(username),
+	timeSubmitted timestamp,
+	PRIMARY KEY (id)
+
+);
+
+);
+
 # --- !Downs
  
 DROP TABLE xusers;
@@ -52,3 +77,7 @@ DROP TABLE games;
 
 DROP TABLE transcripts;
 -- DROP TABLE transcript_id_seq;
+
+DROP TABLE pending_friend_requests;
+
+DROP TABLE pending_game_requests;

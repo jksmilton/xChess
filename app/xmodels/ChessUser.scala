@@ -3,11 +3,11 @@ import scala.collection.immutable.List
 
 case class ChessUser (name: String, email: String){
 
-  var friends = List[ChessUser]()
+  var friends = List[String]()
   
   var games = List[Game]()
   
-  def addFriend(username: ChessUser) : String = {
+  def addFriend(username: String) : String = {
     
     if(!(friends contains username)){
     	friends ::= username

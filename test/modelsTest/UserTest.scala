@@ -30,7 +30,7 @@ class UserTest extends Specification {
     }
     
     "after adding a new friend (N U friend, NUfriend@fr.ei.nd, respond friend added" in {
-      var response = user.addFriend(friend)
+      var response = user.addFriend(friend.name)
       response.equals("friend added")
       
     }
@@ -41,16 +41,15 @@ class UserTest extends Specification {
       
     }
     
-    "the friend should have the name N U friend and email address NUfriend@fr.ei.nd" in {
+    "the friend should have the name N U friend" in {
       
-      user.friends.last.name.equals("N U friend")
-      user.friends.last.email.equals("NUfriend@fr.ei.nd")      
+      user.friends.last.equals("N U friend")      
       
     }
     
     "if the friend is readded, respond with an error message" in {
       
-      var response = user.addFriend(friend)
+      var response = user.addFriend(friend.name)
       response.equals(friend + " is already a friend")
       
     }

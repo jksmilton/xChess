@@ -2,8 +2,7 @@ package controllers
 
 import play.api._
 import play.api.mvc._
-import xmodels.DatabaseAccessor
-import xmodels.ChessUser
+import xmodels._
 import play.api.libs.json._
 import com.codahale.jerkson.Json._
 
@@ -59,8 +58,32 @@ object Application extends Controller {
   
   def getGame(gameID : Long) = Action{ request=>
     
+    val transcript = new Transcript(DatabaseAccessor.getTranscript(gameID))
+        
+    Ok(generate(transcript))
     
-    Ok("")
+  }
+  
+  def addFriend(user: String, friend: String) = Action{ request=>
+    
+    val userProfile = DatabaseAccessor.getUser(user)      
+    var resultStr = userProfile.addFriend(friend)
+    val friendProfile = DatabaseAccessor.getUser(friend)    
+    
+    if(resultStr == "friend added" && friendProfile != null){
+      
+      val requestActor = new FriendshipRequestActor(user, friendProfile)
+      
+      requestActor.start
+      
+    } else if(friendProfile == null){
+      
+      resultStr = friend + " does not exist"
+      
+    }
+    
+    Ok(resultStr)
+    
   }
   
 }

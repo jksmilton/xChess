@@ -50,7 +50,7 @@ class DbAccessorTest extends Specification{
 	      
 	      var dbUser = DatabaseAccessor.getUser(user.name)	      
       
-	      dbUser.friends.contains(otherUser)
+	      dbUser.friends.contains(otherUser.name)
 	      
       }
       

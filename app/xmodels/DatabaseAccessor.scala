@@ -54,14 +54,14 @@ object DatabaseAccessor {
    // return user
   }
   
-  def getFriends(username : String) : List[ChessUser] = {
+  def getFriends(username : String) : List[String] = {
     
     DB.withConnection{implicit conn =>
       
       return SQL("SELECT xusers.username, xusers.email FROM xusers, friendships WHERE friendships.userone = {user} AND xusers.username = friendships.usertwo").on(
     	"user" -> username
       ).apply().map(row=>
-      	new ChessUser(row[String]("username"), row[String]("email"))
+      	row[String]("username")
       ).toList
       
     }
@@ -75,7 +75,7 @@ object DatabaseAccessor {
           return SQL("select * from games where white = {user} OR black = {user}").on(
         	"user" -> user
           ).apply().map( row=>
-          	new Game(row[Long]("id"), row[String]("white"), row[String]("black"), getTranscript(row[Long]("id")))
+          	new Game(row[Long]("id"), row[String]("white"), row[String]("black"))
           ).toList
           
       }
@@ -142,7 +142,6 @@ object DatabaseAccessor {
     
   }
   
-  
   def getTranscript(gameID : Long) : List[String] = {
     
     DB.withConnection { implicit conn =>
@@ -153,6 +152,19 @@ object DatabaseAccessor {
             new String(row[String]("move"))
           ).toList
       
+      
+    }
+    
+  }
+  
+  def createPendingFriendship(requester : String, requestee : String) : Long = {
+    
+    DB.withConnection{ implicit conn =>
+    
+      return SQL("insert into pending_friend_requests(requester, requestee) values({requester}, {requestee})").on(
+        "requester" -> requester,
+        "requestee" -> requestee
+      ).executeInsert().head
       
     }
     
