@@ -1,1 +1,1 @@
-web: play run --http.port=$PORT $PLAY_OPTS -DapplyEvolutions.default=true
+web: play -DapplyEvolutions.default=true run --http.port=$PORT $PLAY_OPTS
