@@ -64,14 +64,22 @@ CREATE TABLE pending_game_requests (
 
 );
 
+CREATE TABLE application_ids (
+
+	appID varchar(255),
+	contactEmail varchar(255),
+	PRIMARY KEY (appID)
+	
 );
+
+INSERT INTO application_ids(appID, contactEmail) values ('t%n08foxWLBRempWkv!O', 'jksmilton@gmail.com');
 
 # --- !Downs
  
 DROP TABLE xusers;
 
 DROP TABLE friendships;
-#DROP SEQUENCE friendship_id_seq;
+-- DROP SEQUENCE friendship_id_seq;
 
 DROP TABLE games;
 -- DROP SEQUENCE xgame_id_seq;
@@ -82,3 +90,5 @@ DROP TABLE transcripts;
 DROP TABLE pending_friend_requests;
 
 DROP TABLE pending_game_requests;
+
+DROP TABLE application_ids;

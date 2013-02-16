@@ -33,6 +33,21 @@ object DatabaseAccessor {
     
   }
   
+  def authCheck(appID:String) : Boolean = {
+    DB.withConnection{implicit conn =>
+      var rows = SQL("Select * from application_ids where appID={id}").on("id" -> appID).apply()
+      
+      println("returned row length for app auth: " + rows.length)
+      
+      if(rows.length == 0){
+          println("app auth returns false")
+          return false
+      }else{
+          return true
+      }
+    }
+  }
+  
   def getUser(username : String) : ChessUser = {
     
     DB.withConnection{ implicit conn =>
