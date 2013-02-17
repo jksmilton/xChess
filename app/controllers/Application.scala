@@ -1,24 +1,33 @@
 package controllers
 
 import play.api._
+import play.api.Play.current
 import play.api.mvc._
 import xmodels._
 import play.api.libs.json._
 import com.codahale.jerkson.Json._
-import play.api.libs.oauth.ConsumerKey
+import play.api.libs.oauth.RequestToken
 import play.api.libs.oauth.ConsumerKey
 import play.api.libs.oauth.OAuth
 import play.api.libs.oauth.ServiceInfo
+import play.api.cache.Cache
 
 
 object Application extends Controller {
-  val key = ConsumerKey("www.xchess.co.uk", "V68qmc6za5w4PhVl9P5ZpN1d")
+  val googlekey = ConsumerKey("www.xchess.co.uk", "V68qmc6za5w4PhVl9P5ZpN1d")
   val google = OAuth(ServiceInfo(
 	    "https://www.google.com/accounts/OAuthGetRequestToken",
 	    "https://www.google.com/accounts/OAuthGetAccessToken",
-	    "https://www.google.com/accounts/OAuthAuthorizeToken", key),
-	    false)
-    
+	    "https://www.google.com/accounts/OAuthAuthorizeToken", googlekey),
+	    true)
+  val twitterkey = ConsumerKey("HG7GNOmWMY8KLV5Dob0OWw","tHnxXOxy20hYA8G9HM3UlWicUa4kAfK3ChNc5HWIY")
+  
+  val twitter= OAuth(ServiceInfo(
+	    "https://api.twitter.com/oauth/request_token",
+	    "https://api.twitter.com/oauth/access_token",
+	    "https://api.twitter.com/oauth/authorize", twitterkey),
+	    true)
+  
   def index = Action {
     Ok("")
   }
@@ -50,18 +59,19 @@ object Application extends Controller {
   }
   
   def generateRequestToken(appID : String) = Action{ request =>
-      val callback = "http://www.xchess.com/application/callbacks/oauth" //PRODUCTION
-    //  val callback = "http://localhost:9000/application/callbacks/oauth" //TEST
+    //  val callback = "http://www.xchess.com/application/callbacks/oauth" //PRODUCTION
+      val callback = "http://localhost:9000/application/callbacks/oauth" //TEST
           
       if(!DatabaseAccessor.authCheck(appID)){
         
           Ok("Application not authorised")
         
       } else {
-      
-		  google.retrieveRequestToken(callback) match {
+    	  
+		  twitter.retrieveRequestToken(callback) match {
 	          case Right(t) => {
-	              Ok(google.redirectUrl(t.token))
+	              Cache.set(t.token, t.secret)
+	              Ok(twitter.redirectUrl(t.token))
 	          }
 	          case Left(e) => throw e
 	      }
@@ -83,9 +93,17 @@ object Application extends Controller {
     }
   }
   
-  def exchangeRequestForAccess = Action{ request=>
+  def exchangeRequestForAccess(verifier: String, token: String) = Action{ request=>
       
-      Ok("")
+	  val secret = Cache.getAs[String](token).get
+	  val requestToken= RequestToken(token, secret)
+	  
+	  twitter.retrieveAccessToken(requestToken, verifier) match {
+	  	case Right(t) => {
+	  	    Ok(t.token)
+	  	}
+	  	case Left(e) => throw e
+}
       
   }
   
