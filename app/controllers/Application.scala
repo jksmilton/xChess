@@ -3,6 +3,7 @@ package controllers
 import play.api._
 import play.api.Play.current
 import play.api.mvc._
+import play.api.libs.ws._
 import xmodels._
 import play.api.libs.json._
 import com.codahale.jerkson.Json._
@@ -11,7 +12,8 @@ import play.api.libs.oauth.ConsumerKey
 import play.api.libs.oauth.OAuth
 import play.api.libs.oauth.ServiceInfo
 import play.api.cache.Cache
-
+import java.security.MessageDigest
+import play.api.libs.oauth.OAuthCalculator
 
 object Application extends Controller {
   val googlekey = ConsumerKey("www.xchess.co.uk", "V68qmc6za5w4PhVl9P5ZpN1d")
@@ -29,7 +31,7 @@ object Application extends Controller {
 	    true)
   
   def index = Action {
-    Ok("")
+    TODO
   }
   
   def getUser(username : String, appID : String) = Action { request =>
@@ -81,6 +83,8 @@ object Application extends Controller {
   }
   
   def getGame(gameID : Long, appID : String) = Action{ request=>
+      
+         
      if(!DatabaseAccessor.authCheck(appID)){
         
           Ok("Application not authorised")
@@ -100,10 +104,51 @@ object Application extends Controller {
 	  
 	  twitter.retrieveAccessToken(requestToken, verifier) match {
 	  	case Right(t) => {
-	  	    Ok(t.token)
+	  	    
+	  	    val response = WS.url("https://api.twitter.com/1.1/account/settings.json").sign(OAuthCalculator(twitterkey, RequestToken(t.token, t.secret))).get()
+	  	    var user = ""
+  	        var tokenHash = md5Hasher(t.token)
+  	        var dbUser = DatabaseAccessor.getUser(tokenHash)
+  	        
+  	        if(dbUser ==null){
+  	        	Async{
+			  	    response.map( response =>
+			  	        
+			  	        
+			  	        Ok(generate(setUp((response.json \ "screen_name").as[String], t.token, tokenHash, t.secret)))
+			  	        
+			  	        
+			  	    )
+  	        	}
+  	        } else {
+  	            Ok(generate(dbUser))
+  	        }
+	  	    
 	  	}
 	  	case Left(e) => throw e
-}
+	  }
+  }
+  
+  def setUp(screenname : String, token : String, xauth : String, secret : String) : ChessUser = {
+     	        
+	   var dbUser = new ChessUser(token, xauth, "notcre@ed.yet", screenname, secret)
+       
+	   DatabaseAccessor.createUser(dbUser)
+	          
+	   return ChessUser("xxxx", dbUser.xauth, dbUser.email, dbUser.handle, "xxxx")
+  }
+  
+  def md5Hasher(input : String) : String = {
+      
+      var digester = MessageDigest.getInstance("MD5")
+      var outputbuffer = new StringBuffer()
+      var byteDigest = digester.digest(input.getBytes("UTF-8")).iterator
+      
+      while(byteDigest.hasNext){
+			outputbuffer.append(Integer.toHexString(byteDigest.next & 0xff))
+	  }
+      
+      return outputbuffer.toString()
       
   }
   

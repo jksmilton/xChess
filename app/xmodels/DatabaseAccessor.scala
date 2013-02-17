@@ -11,25 +11,25 @@ object DatabaseAccessor {
     
     DB.withConnection{ implicit conn =>
 	      
-      val getUsers = SQL("Select username, email from xusers")
+      val getUsers = SQL("Select * from xusers")
       
       returnUsers = getUsers().map(row =>
-        parseIntoUser(row[String]("username"), row[String]("email"))
+        parseIntoUser(row[String]("handle"), row[String]("email"), row[String]("xauthkey"))
       ).toList
 	      
     }
     return returnUsers
   }
   
-  def parseIntoUser(name : String, email : String) : ChessUser = {
+  def parseIntoUser(handle : String, email : String, xauth : String) : ChessUser = {
     
-    var user =  new ChessUser(name, email)
+    var user =  new ChessUser("xxx", "xxx", email, handle,"xxx")
     	
-    	user.friends = getFriends(user.name)
+	user.friends = getFriends(xauth)
     	
-    	user.games = getGames(user.name)
+	user.games = getGames(xauth)
     	
-    	return user
+    return user
     
   }
   
@@ -48,11 +48,11 @@ object DatabaseAccessor {
     }
   }
   
-  def getUser(username : String) : ChessUser = {
+  def getUser(xauthkey : String) : ChessUser = {
     
     DB.withConnection{ implicit conn =>
       
-    	var rows = SQL("Select username, email from xusers where username = {name}").on("name" -> username).apply()
+    	var rows = SQL("Select * from xusers where xauthkey = {xauth}").on("xauth" -> xauthkey).apply()
     	
     	if(rows.length == 0){
     	  
@@ -60,23 +60,23 @@ object DatabaseAccessor {
     	  
     	}
     	var row = rows.head
-    	return parseIntoUser(row[String]("username"), row[String]("email"))
+    	return parseIntoUser(row[String]("handle"), row[String]("email"), row[String]("xauthkey"))
     	
     	
     }
     
     
-   // return user
+   
   }
   
-  def getFriends(username : String) : List[String] = {
+  def getFriends(xauth : String) : List[String] = {
     
     DB.withConnection{implicit conn =>
       
-      return SQL("SELECT xusers.username, xusers.email FROM xusers, friendships WHERE friendships.userone = {user} AND xusers.username = friendships.usertwo").on(
-    	"user" -> username
+      return SQL("SELECT xusers.xauthkey, xusers.handle FROM xusers, friendships WHERE (friendships.userone = {user} AND xusers.xauthkey = friendships.usertwo) OR (friendships.usertwo = {user} AND xusers.xauthkey = friendships.userone)").on(
+    	"user" -> xauth
       ).apply().map(row=>
-      	row[String]("username")
+      	row[String]("handle")
       ).toList
       
     }
@@ -101,9 +101,13 @@ object DatabaseAccessor {
     
     DB.withTransaction { implicit conn =>
      
-    val id = SQL("INSERT INTO xusers(username, email) values({username},{email})").on(
-         "username" -> user.name, 
-         "email" ->user.email).executeUpdate()
+    val id = SQL("INSERT INTO xusers(xauthkey, oauthkey, handle, secret, email) values({xauthkey},{oauthkey}, {handle}, {secret}, {email})").on(
+         "xauthkey" -> user.xauth, 
+         "email" ->user.email,
+         "oauthkey" -> user.authString,
+         "handle" -> user.handle,
+         "secret" -> user.authSecret
+         ).executeUpdate()
      
      conn.commit()
          
@@ -116,8 +120,8 @@ object DatabaseAccessor {
     DB.withTransaction{ implicit conn =>
       
       SQL("insert into friendships(userone, usertwo) values({user}, {friend})").on(
-          "user" -> user.name,
-          "friend" -> friend.name
+          "user" -> user.xauth,
+          "friend" -> friend.xauth
       ).executeUpdate()
       
       conn.commit()
@@ -131,8 +135,8 @@ object DatabaseAccessor {
       DB.withConnection{ implicit conn =>
           
           return SQL("insert into games(white, black) values({white},{black})").on(
-        	"white" -> white.name,
-        	"black" -> black.name
+        	"white" -> white.xauth,
+        	"black" -> black.xauth
           ).executeInsert().head
          
       }
