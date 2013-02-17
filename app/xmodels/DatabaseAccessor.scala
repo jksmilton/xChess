@@ -11,7 +11,7 @@ object DatabaseAccessor {
     
     DB.withConnection{ implicit conn =>
 	      
-      val getUsers = SQL("Select * from xusers")
+      val getUsers = SQL("Select * from \"xusers\"")
       
       returnUsers = getUsers().map(row =>
         parseIntoUser(row[String]("handle"), row[String]("email"), row[String]("xauthkey"))
@@ -35,7 +35,7 @@ object DatabaseAccessor {
   
   def authCheck(appID:String) : Boolean = {
     DB.withConnection{implicit conn =>
-      var rows = SQL("Select * from application_ids where appID={id}").on("id" -> appID).apply()
+      var rows = SQL("Select * from \"application_ids\" where appID={id}").on("id" -> appID).apply()
       
       println("returned row length for app auth: " + rows.length)
       
@@ -52,7 +52,7 @@ object DatabaseAccessor {
     
     DB.withConnection{ implicit conn =>
       
-    	var rows = SQL("Select * from xusers where xauthkey = {xauth}").on("xauth" -> xauthkey).apply()
+    	var rows = SQL("Select * from \"xusers\" where xauthkey = {xauth}").on("xauth" -> xauthkey).apply()
     	
     	if(rows.length == 0){
     	  
@@ -73,7 +73,7 @@ object DatabaseAccessor {
     
     DB.withConnection{implicit conn =>
       
-      return SQL("SELECT xusers.xauthkey, xusers.handle FROM xusers, friendships WHERE (friendships.userone = {user} AND xusers.xauthkey = friendships.usertwo) OR (friendships.usertwo = {user} AND xusers.xauthkey = friendships.userone)").on(
+      return SQL("SELECT \"xusers\".xauthkey, \"xusers\".handle FROM \"xusers\", \"friendships\" WHERE (\"friendships\".userone = {user} AND \"xusers\".xauthkey = \"friendships\".usertwo) OR (\"friendships\".usertwo = {user} AND \"xusers\".xauthkey = \"friendships\".userone)").on(
     	"user" -> xauth
       ).apply().map(row=>
       	row[String]("handle")
@@ -87,7 +87,7 @@ object DatabaseAccessor {
       
       DB.withConnection{ implicit conn =>
           
-          return SQL("select * from games where white = {user} OR black = {user}").on(
+          return SQL("select * from \"games\" where white = {user} OR black = {user}").on(
         	"user" -> user
           ).apply().map( row=>
           	new Game(row[Long]("id"), row[String]("white"), row[String]("black"))
@@ -101,7 +101,7 @@ object DatabaseAccessor {
     
     DB.withTransaction { implicit conn =>
      
-    val id = SQL("INSERT INTO xusers(xauthkey, oauthkey, handle, secret, email) values({xauthkey},{oauthkey}, {handle}, {secret}, {email})").on(
+    val id = SQL("INSERT INTO \"xusers\"(xauthkey, oauthkey, handle, secret, email) values({xauthkey},{oauthkey}, {handle}, {secret}, {email})").on(
          "xauthkey" -> user.xauth, 
          "email" ->user.email,
          "oauthkey" -> user.authString,
@@ -119,7 +119,7 @@ object DatabaseAccessor {
     
     DB.withTransaction{ implicit conn =>
       
-      SQL("insert into friendships(userone, usertwo) values({user}, {friend})").on(
+      SQL("insert into \"friendships\"(userone, usertwo) values({user}, {friend})").on(
           "user" -> user.xauth,
           "friend" -> friend.xauth
       ).executeUpdate()
@@ -134,7 +134,7 @@ object DatabaseAccessor {
       
       DB.withConnection{ implicit conn =>
           
-          return SQL("insert into games(white, black) values({white},{black})").on(
+          return SQL("insert into \"games\"(white, black) values({white},{black})").on(
         	"white" -> white.xauth,
         	"black" -> black.xauth
           ).executeInsert().head
@@ -147,7 +147,7 @@ object DatabaseAccessor {
     
     DB.withTransaction{ implicit conn =>
       
-      SQL("insert into transcripts(game, player, move) values({game}, {player}, {move})").on(
+      SQL("insert into \"transcripts\"(game, player, move) values({game}, {player}, {move})").on(
     		  
           "game" -> gameID,
           "player" -> player,
@@ -165,7 +165,7 @@ object DatabaseAccessor {
     
     DB.withConnection { implicit conn =>
       
-      return SQL("select move from transcripts where game = {gameID} order by timePlayed").on(
+      return SQL("select move from \"transcripts\" where game = {gameID} order by timePlayed").on(
           "gameID" -> gameID
           ).apply().map( row=> 
             new String(row[String]("move"))
@@ -180,7 +180,7 @@ object DatabaseAccessor {
     
     DB.withConnection{ implicit conn =>
     
-      return SQL("insert into pending_friend_requests(requester, requestee) values({requester}, {requestee})").on(
+      return SQL("insert into \"pending_friend_requests\"(requester, requestee) values({requester}, {requestee})").on(
         "requester" -> requester,
         "requestee" -> requestee
       ).executeInsert().head
