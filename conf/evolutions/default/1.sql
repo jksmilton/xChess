@@ -16,8 +16,8 @@ CREATE TABLE "xusers" (
 CREATE TABLE "friendships" (
 	-- id integer NOT NULL DEFAULT nextval('friendship_id_seq'),
 	id SERIAL,
-	userone varchar(255) REFERENCES "xusers"(oauthkey),
-	usertwo varchar(255) REFERENCES "xusers"(oauthkey),
+	userone varchar(255) REFERENCES "xusers"(xauthkey),
+	usertwo varchar(255) REFERENCES "xusers"(xauthkey),
 	PRIMARY KEY (id)
 );
  
@@ -26,8 +26,8 @@ CREATE TABLE "friendships" (
 CREATE TABLE "games" (
 	-- id integer NOT NULL DEFAULT nextval('game_id_seq'),
 	id SERIAL,
-	white varchar(255) REFERENCES "xusers"(oauthkey),
-	black varchar(255) REFERENCES "xusers"(oauthkey),
+	white varchar(255) REFERENCES "xusers"(xauthkey),
+	black varchar(255) REFERENCES "xusers"(xauthkey),
 	PRIMARY KEY (id)
 );
 
@@ -37,7 +37,7 @@ CREATE TABLE "transcripts" (
 	-- id integer NOT NULL DEFAULT nextval('transcript_id_seq'),
 	id SERIAL,
 	game integer REFERENCES "games"(id),
-	player varchar(255) REFERENCES "xusers"(oauthkey),
+	player varchar(255) REFERENCES "xusers"(xauthkey),
 	move varchar(255),
 	timePlayed timestamp, 
 	PRIMARY KEY (id)
@@ -48,8 +48,8 @@ CREATE TABLE "transcripts" (
 CREATE TABLE "pending_friend_requests" (
 
 	id SERIAL,
-	requester varchar(255) REFERENCES "xusers"(oauthkey),
-	requestee varchar(255) REFERENCES "xusers"(oauthkey),
+	requester varchar(255) REFERENCES "xusers"(xauthkey),
+	requestee varchar(255) REFERENCES "xusers"(xauthkey),
 	timeSubmitted timestamp,
 	PRIMARY KEY (id)
 
@@ -59,8 +59,8 @@ CREATE TABLE "pending_friend_requests" (
 CREATE TABLE "pending_game_requests" (
 
 	id SERIAL,
-	requester varchar(255) REFERENCES "xusers"(oauthkey),
-	requestee varchar(255) REFERENCES "xusers"(oauthkey),
+	requester varchar(255) REFERENCES "xusers"(xauthkey),
+	requestee varchar(255) REFERENCES "xusers"(xauthkey),
 	timeSubmitted timestamp,
 	PRIMARY KEY (id)
 
