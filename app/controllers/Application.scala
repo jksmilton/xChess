@@ -61,8 +61,8 @@ object Application extends Controller {
   }
   
   def generateRequestToken(appID : String) = Action{ request =>
-    //  val callback = "http://www.xchess.com/application/callbacks/oauth" //PRODUCTION
-      val callback = "http://localhost:9000/application/callbacks/oauth" //TEST
+      val callback = "http://www.xchess.com/application/callbacks/oauth" //PRODUCTION
+   //   val callback = "http://localhost:9000/application/callbacks/oauth" //TEST
           
       if(!DatabaseAccessor.authCheck(appID)){
         
