@@ -4,6 +4,8 @@ import play.api.db._
 import anorm._
 object DatabaseAccessor {
 
+  val AUTHKEY = "xauthkey"
+  val HANDLE = "handle"
   
   def allUsers : List[ChessUser] = {
     
@@ -14,22 +16,24 @@ object DatabaseAccessor {
       val getUsers = SQL("Select * from \"xusers\"")
       
       returnUsers = getUsers().map(row =>
-        parseIntoUser(row[String]("handle"), row[String]("email"), row[String]("xauthkey"))
+        parseIntoUser(ChessUser(row[String]("oauthkey"), row[String]("xauthkey"), row[String]("handle"), row[String]("email"), row[String]("secret")), true)
       ).toList
 	      
     }
     return returnUsers
   }
   
-  def parseIntoUser(handle : String, email : String, xauth : String) : ChessUser = {
-    
-    var user =  new ChessUser("xxx", "xxx", email, handle,"xxx")
+  def parseIntoUser(user:ChessUser, internal : Boolean) : ChessUser = {
+    var tempUser = user
+    if(!internal){
+      tempUser = ChessUser("xxx", "xxx", user.handle, user.email, "xxx")
+    }
+	
+	tempUser.friends = getFriends(user.xauth)
     	
-	user.friends = getFriends(xauth)
+	tempUser.games = getGames(user.xauth)
     	
-	user.games = getGames(xauth)
-    	
-    return user
+    return tempUser
     
   }
   
@@ -48,11 +52,16 @@ object DatabaseAccessor {
     }
   }
   
-  def getUser(xauthkey : String) : ChessUser = {
+  def getUser(xauthkey : String, searchField : String,internal : Boolean) : ChessUser = {
     
     DB.withConnection{ implicit conn =>
       
-    	var rows = SQL("Select * from \"xusers\" where xauthkey = {xauth}").on("xauth" -> xauthkey).apply()
+        var rows : Stream[anorm.SqlRow] = null 
+        if(searchField.equals(HANDLE)){
+          rows = SQL("Select * from \"xusers\" where handle = {xauth}").on("xauth" -> xauthkey, "toSearch" -> searchField).apply()
+        } else {
+          rows = SQL("Select * from \"xusers\" where xauthkey = {xauth}").on("xauth" -> xauthkey, "toSearch" -> searchField).apply()
+        }
     	
     	if(rows.length == 0){
     	  
@@ -60,7 +69,7 @@ object DatabaseAccessor {
     	  
     	}
     	var row = rows.head
-    	return parseIntoUser(row[String]("handle"), row[String]("email"), row[String]("xauthkey"))
+    	return parseIntoUser(ChessUser(row[String]("oauthkey"), row[String]("xauthkey"), row[String]("handle"), row[String]("email"), row[String]("secret")), internal)
     	
     	
     }
@@ -188,5 +197,21 @@ object DatabaseAccessor {
     }
     
   }
+  
+  def updateEmail(user : String, email : String) { 
+    
+    DB.withConnection {implicit conn=>
+    
+      SQL("UPDATE \"xusers\" SET email={email} WHERE xauthkey={user}").on(
+      
+          "email" -> email,
+          "user" -> user
+          
+      ).executeUpdate
+    
+    }
+    
+  }
+  
   
 }

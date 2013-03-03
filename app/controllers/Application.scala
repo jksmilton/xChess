@@ -42,7 +42,7 @@ object Application extends Controller {
         
     } else {
       
-	    var user = DatabaseAccessor.getUser(username)
+	    var user = DatabaseAccessor.getUser(username, DatabaseAccessor.AUTHKEY, false)
 	    
 	    if(user == null){
 	      
@@ -61,8 +61,8 @@ object Application extends Controller {
   }
   
   def generateRequestToken(appID : String) = Action{ request =>
-      val callback = "http://www.xchess.co.uk/application/callbacks/oauth" //PRODUCTION
-   //   val callback = "http://localhost:9000/application/callbacks/oauth" //TEST
+     // val callback = "http://www.xchess.co.uk/application/callbacks/oauth" //PRODUCTION
+      val callback = "http://localhost:9000/application/callbacks/oauth" //TEST
           
       if(!DatabaseAccessor.authCheck(appID)){
         
@@ -108,7 +108,7 @@ object Application extends Controller {
 	  	    val response = WS.url("https://api.twitter.com/1.1/account/settings.json").sign(OAuthCalculator(twitterkey, RequestToken(t.token, t.secret))).get()
 	  	    var user = ""
   	        var tokenHash = md5Hasher(t.token)
-  	        var dbUser = DatabaseAccessor.getUser(tokenHash)
+  	        var dbUser = DatabaseAccessor.getUser(tokenHash, DatabaseAccessor.AUTHKEY, true)
   	        
   	        if(dbUser ==null){
   	        	Async{
@@ -121,7 +121,7 @@ object Application extends Controller {
 			  	    )
   	        	}
   	        } else {
-  	            Ok(generate(dbUser))
+  	            Ok(generate(setUp(dbUser)))
   	        }
 	  	    
 	  	}
@@ -131,11 +131,17 @@ object Application extends Controller {
   
   def setUp(screenname : String, token : String, xauth : String, secret : String) : ChessUser = {
      	        
-	   var dbUser = new ChessUser(token, xauth, "notcre@ed.yet", screenname, secret)
+	   var dbUser = new ChessUser(token, xauth, "user@example.com", screenname, secret)
        
 	   DatabaseAccessor.createUser(dbUser)
 	          
 	   return ChessUser("xxxx", dbUser.xauth, dbUser.email, dbUser.handle, "xxxx")
+  }
+  
+  def setUp(user : ChessUser) : ChessUser = {
+    
+    return ChessUser("xxxx", user.xauth, user.email, user.handle, "xxxx")
+    
   }
   
   def md5Hasher(input : String) : String = {
@@ -159,13 +165,13 @@ object Application extends Controller {
         
       } else {
           
-		    val userProfile = DatabaseAccessor.getUser(user)      
+		    val userProfile = DatabaseAccessor.getUser(user, DatabaseAccessor.AUTHKEY ,true)      
 		    var resultStr = userProfile.addFriend(friend)
-		    val friendProfile = DatabaseAccessor.getUser(friend)    
+		    val friendProfile = DatabaseAccessor.getUser(friend, DatabaseAccessor.HANDLE ,true)    
 		    
 		    if(resultStr == "friend added" && friendProfile != null){
 		      
-		      val requestActor = new FriendshipRequestActor(user, friendProfile)
+		      val requestActor = new FriendshipRequestActor(userProfile, friendProfile)
 		      
 		      requestActor.start
 		      
@@ -178,6 +184,34 @@ object Application extends Controller {
 		    Ok(resultStr)
 		    
       }
+  }
+  
+  def editEmail(user:String, appID : String) = Action(parse.text){ request =>
+  
+    if(!DatabaseAccessor.authCheck(appID)){
+        
+        Ok("Application not authorised")
+        
+    } else {
+      
+	    var userProfile = DatabaseAccessor.getUser(user, DatabaseAccessor.AUTHKEY, false)
+	    
+	    if(userProfile == null){
+	      
+	      Ok("Account does not exist")
+	      
+	    } else {
+	      
+	      val email = request.body
+	      
+	      DatabaseAccessor.updateEmail(user, email)
+	     
+	      Ok("Updated Successfully")
+	      
+	    }
+    
+    }
+  
   }
   
 }
