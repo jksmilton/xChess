@@ -3,11 +3,14 @@
 # ~~~~
 
 # Home page
-GET     /                           				controllers.Application.index
+GET     /                         			  				controllers.Application.index
 
 # API access stuff
-GET		/application/_API/getUser/:user/:email		controllers.Application.getUser(user : String, email : String)
-POST	/application/_API/createUser/				controllers.Application.createUser
-
+GET		/application/_API/getUser/:user/:appID				controllers.Application.getUser(user : String, appID : String)
+GET		/application/_API/getRequestToken/:appID			controllers.Application.generateRequestToken(appID : String)
+GET		/application/_API/getGame/:id/:appID				controllers.Application.getGame(id : Long, appID : String)
+GET		/application/callbacks/oauth						controllers.Application.exchangeRequestForAccess(oauth_verifier, oauth_token)
+POST	/application/_API/addFriend/:user/:friend/:appID	controllers.Application.addFriend(user : String, friend : String, appID : String)
+POST	/application/_API/updateEmail/:user/:appID			controllers.Application.editEmail(user : String, appID : String)
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               				controllers.Assets.at(path="/public", file)
+GET     /assets/*file               						controllers.Assets.at(path="/public", file)

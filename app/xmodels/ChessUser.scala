@@ -1,13 +1,13 @@
 package xmodels
 import scala.collection.immutable.List
 
-case class ChessUser (name: String, email: String){
+case class ChessUser (authString: String, xauth: String, email: String, handle: String, authSecret: String){
 
-  var friends = List[ChessUser]()
+  var friends = List[String]()
   
   var games = List[Game]()
   
-  def addFriend(username: ChessUser) : String = {
+  def addFriend(username: String) : String = {
     
     if(!(friends contains username)){
     	friends ::= username
@@ -18,8 +18,8 @@ case class ChessUser (name: String, email: String){
     
   }
   
-  override def equals(obj : Any) : Boolean = name.equals(obj.toString())
+  override def equals(obj : Any) : Boolean = authString.equals(obj.toString())
   
-  override def toString () : String = name
+  override def toString () : String = handle
   
 }

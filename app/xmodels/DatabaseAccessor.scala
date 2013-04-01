@@ -4,6 +4,8 @@ import play.api.db._
 import anorm._
 object DatabaseAccessor {
 
+  val AUTHKEY = "xauthkey"
+  val HANDLE = "handle"
   
   def allUsers : List[ChessUser] = {
     
@@ -11,33 +13,55 @@ object DatabaseAccessor {
     
     DB.withConnection{ implicit conn =>
 	      
-      val getUsers = SQL("Select username, email from xusers")
+      val getUsers = SQL("Select * from \"xusers\"")
       
       returnUsers = getUsers().map(row =>
-        parseIntoUser(row[String]("username"), row[String]("email"))
+        parseIntoUser(ChessUser(row[String]("oauthkey"), row[String]("xauthkey"), row[String]("handle"), row[String]("email"), row[String]("secret")), true)
       ).toList
 	      
     }
     return returnUsers
   }
   
-  def parseIntoUser(name : String, email : String) : ChessUser = {
-    
-    var user =  new ChessUser(name, email)
+  def parseIntoUser(user:ChessUser, internal : Boolean) : ChessUser = {
+    var tempUser = user
+    if(!internal){
+      tempUser = ChessUser("xxx", "xxx", user.handle, user.email, "xxx")
+    }
+	
+	tempUser.friends = getFriends(user.xauth)
     	
-    	user.friends = getFriends(user.name)
+	tempUser.games = getGames(user.xauth)
     	
-    	user.games = getGames(user.name)
-    	
-    	return user
+    return tempUser
     
   }
   
-  def getUser(username : String) : ChessUser = {
+  def authCheck(appID:String) : Boolean = {
+    DB.withConnection{implicit conn =>
+      var rows = SQL("Select * from \"application_ids\" where appID={id}").on("id" -> appID).apply()
+      
+      println("returned row length for app auth: " + rows.length)
+      
+      if(rows.length == 0){
+          println("app auth returns false")
+          return false
+      }else{
+          return true
+      }
+    }
+  }
+  
+  def getUser(xauthkey : String, searchField : String,internal : Boolean) : ChessUser = {
     
     DB.withConnection{ implicit conn =>
       
-    	var rows = SQL("Select username, email from xusers where username = {name}").on("name" -> username).apply()
+        var rows : Stream[anorm.SqlRow] = null 
+        if(searchField.equals(HANDLE)){
+          rows = SQL("Select * from \"xusers\" where handle = {xauth}").on("xauth" -> xauthkey, "toSearch" -> searchField).apply()
+        } else {
+          rows = SQL("Select * from \"xusers\" where xauthkey = {xauth}").on("xauth" -> xauthkey, "toSearch" -> searchField).apply()
+        }
     	
     	if(rows.length == 0){
     	  
@@ -45,23 +69,23 @@ object DatabaseAccessor {
     	  
     	}
     	var row = rows.head
-    	return parseIntoUser(row[String]("username"), row[String]("email"))
+    	return parseIntoUser(ChessUser(row[String]("oauthkey"), row[String]("xauthkey"), row[String]("handle"), row[String]("email"), row[String]("secret")), internal)
     	
     	
     }
     
     
-   // return user
+   
   }
   
-  def getFriends(username : String) : List[ChessUser] = {
+  def getFriends(xauth : String) : List[String] = {
     
     DB.withConnection{implicit conn =>
       
-      return SQL("SELECT xusers.username, xusers.email FROM xusers, friendships WHERE friendships.userone = {user} AND xusers.username = friendships.usertwo").on(
-    	"user" -> username
+      return SQL("SELECT \"xusers\".xauthkey, \"xusers\".handle FROM \"xusers\", \"friendships\" WHERE (\"friendships\".userone = {user} AND \"xusers\".xauthkey = \"friendships\".usertwo) OR (\"friendships\".usertwo = {user} AND \"xusers\".xauthkey = \"friendships\".userone)").on(
+    	"user" -> xauth
       ).apply().map(row=>
-      	new ChessUser(row[String]("username"), row[String]("email"))
+      	row[String]("handle")
       ).toList
       
     }
@@ -72,10 +96,10 @@ object DatabaseAccessor {
       
       DB.withConnection{ implicit conn =>
           
-          return SQL("select * from games where white = {user} OR black = {user}").on(
+          return SQL("select * from \"games\" where white = {user} OR black = {user}").on(
         	"user" -> user
           ).apply().map( row=>
-          	new Game(row[Long]("id"), row[String]("white"), row[String]("black"), getTranscript(row[Long]("id")))
+          	new Game(row[Long]("id"), row[String]("white"), row[String]("black"))
           ).toList
           
       }
@@ -86,9 +110,13 @@ object DatabaseAccessor {
     
     DB.withTransaction { implicit conn =>
      
-    val id = SQL("INSERT INTO xusers(username, email) values({username},{email})").on(
-         "username" -> user.name, 
-         "email" ->user.email).executeUpdate()
+    val id = SQL("INSERT INTO \"xusers\"(xauthkey, oauthkey, handle, secret, email) values({xauthkey},{oauthkey}, {handle}, {secret}, {email})").on(
+         "xauthkey" -> user.xauth, 
+         "email" ->user.email,
+         "oauthkey" -> user.authString,
+         "handle" -> user.handle,
+         "secret" -> user.authSecret
+         ).executeUpdate()
      
      conn.commit()
          
@@ -100,9 +128,9 @@ object DatabaseAccessor {
     
     DB.withTransaction{ implicit conn =>
       
-      SQL("insert into friendships(userone, usertwo) values({user}, {friend})").on(
-          "user" -> user.name,
-          "friend" -> friend.name
+      SQL("insert into \"friendships\"(userone, usertwo) values({user}, {friend})").on(
+          "user" -> user.xauth,
+          "friend" -> friend.xauth
       ).executeUpdate()
       
       conn.commit()
@@ -115,9 +143,9 @@ object DatabaseAccessor {
       
       DB.withConnection{ implicit conn =>
           
-          return SQL("insert into games(white, black) values({white},{black})").on(
-        	"white" -> white.name,
-        	"black" -> black.name
+          return SQL("insert into \"games\"(white, black) values({white},{black})").on(
+        	"white" -> white.xauth,
+        	"black" -> black.xauth
           ).executeInsert().head
          
       }
@@ -128,7 +156,7 @@ object DatabaseAccessor {
     
     DB.withTransaction{ implicit conn =>
       
-      SQL("insert into transcripts(game, player, move) values({game}, {player}, {move})").on(
+      SQL("insert into \"transcripts\"(game, player, move) values({game}, {player}, {move})").on(
     		  
           "game" -> gameID,
           "player" -> player,
@@ -142,12 +170,11 @@ object DatabaseAccessor {
     
   }
   
-  
   def getTranscript(gameID : Long) : List[String] = {
     
     DB.withConnection { implicit conn =>
       
-      return SQL("select move from transcripts where game = {gameID} order by timePlayed").on(
+      return SQL("select move from \"transcripts\" where game = {gameID} order by timePlayed").on(
           "gameID" -> gameID
           ).apply().map( row=> 
             new String(row[String]("move"))
@@ -157,5 +184,34 @@ object DatabaseAccessor {
     }
     
   }
+  
+  def createPendingFriendship(requester : String, requestee : String) : Long = {
+    
+    DB.withConnection{ implicit conn =>
+    
+      return SQL("insert into \"pending_friend_requests\"(requester, requestee) values({requester}, {requestee})").on(
+        "requester" -> requester,
+        "requestee" -> requestee
+      ).executeInsert().head
+      
+    }
+    
+  }
+  
+  def updateEmail(user : String, email : String) { 
+    
+    DB.withConnection {implicit conn=>
+    
+      SQL("UPDATE \"xusers\" SET email={email} WHERE xauthkey={user}").on(
+      
+          "email" -> email,
+          "user" -> user
+          
+      ).executeUpdate
+    
+    }
+    
+  }
+  
   
 }

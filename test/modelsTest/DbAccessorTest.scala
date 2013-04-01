@@ -8,6 +8,7 @@ class DbAccessorTest extends Specification{
   "A clean database" should{
     
     var user = new ChessUser("A N Other","ANOther@somee.ma.il")
+   
     var otherUser = new ChessUser("Som Eguy", "SomEguy@anadd.re.ss")
     "have 0 user entries" in {
       running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
@@ -50,7 +51,7 @@ class DbAccessorTest extends Specification{
 	      
 	      var dbUser = DatabaseAccessor.getUser(user.name)	      
       
-	      dbUser.friends.contains(otherUser)
+	      dbUser.friends.contains(otherUser.name)
 	      
       }
       
