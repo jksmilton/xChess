@@ -3,7 +3,6 @@ package controllers
 import play.api._
 import play.api.mvc._
 import xmodels.DatabaseAccessor
-import xmodels.ChessUser
 
 object Application extends Controller {
   
@@ -17,11 +16,7 @@ object Application extends Controller {
     
     if(user == null){
       
-      val user = new ChessUser(username, email)
-      
-      DatabaseAccessor.createUser(user)
-      
-      Ok("")
+      Ok("fail!")
       
     } else {
       
