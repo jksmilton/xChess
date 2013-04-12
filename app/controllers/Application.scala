@@ -14,7 +14,8 @@ import play.api.libs.oauth.ServiceInfo
 import play.api.cache.Cache
 import java.security.MessageDigest
 import play.api.libs.oauth.OAuthCalculator
-
+import javachess._
+import scala.collection.mutable.ArraySeq
 object Application extends Controller {
   val googlekey = ConsumerKey("www.xchess.co.uk", "V68qmc6za5w4PhVl9P5ZpN1d")
   val google = OAuth(ServiceInfo(
@@ -212,6 +213,62 @@ object Application extends Controller {
     
     }
   
+  }
+  
+  def addMove(user:String, gameID:Long, move:String, appID:String) = Action { request=>
+    
+    if(!DatabaseAccessor.authCheck(appID)){
+        
+        Ok("Application not authorised")
+        
+    }
+    
+    val game = DatabaseAccessor.getGame(gameID)
+    
+    if(!(user.equals(game.white) || user.equals(game.black) )){
+      
+      Ok("Player not a member of this game")
+      
+    }
+    
+    val board = buildBoard(DatabaseAccessor.getTranscript(gameID))
+    
+    if((board.GetCurrentPlayer() == 0 && user.equals(game.black)) || (board.GetCurrentPlayer() == 1 && user.equals(game.white))){
+      Ok("Not your turn")
+    }
+    
+    val xmove = new Move(move, user)
+    var newMove = xmove.convertToEngine
+    
+    val player = new jcPlayerHuman(board.GetCurrentPlayer())
+    
+    newMove = player.GetMove(board, newMove, newMove.MoveType)
+    
+    DatabaseAccessor.addMove(gameID, user, move)
+    
+    Ok("Success")
+    
+  }
+  
+  def buildBoard(transcript: List[String] ) : jcBoard = {
+    
+    val board = new jcBoard
+    val players = new ArraySeq[jcPlayerHuman](2)
+    var crntMove = new jcMove
+    players(0) = new jcPlayerHuman(0)
+    players(1) = new jcPlayerHuman(1)
+    
+    for(move <- transcript){
+      
+      val xmove = new Move(move, "")
+      crntMove = xmove.convertToEngine
+      crntMove = players(board.GetCurrentPlayer()).GetMove(board, crntMove, crntMove.MoveType)
+      board.ApplyMove(crntMove)
+      
+    }
+    
+    return board
+    
   }
   
 }

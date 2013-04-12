@@ -152,6 +152,24 @@ object DatabaseAccessor {
       
   }
   
+  def getGame(gameID : Long) : Game = {
+    
+    var game : Game = null
+    var row : anorm.SqlRow = null 
+    DB.withConnection{ implicit conn=>
+    
+      row = SQL("select * from \"games\" where id = {gameID}").on(
+          "gameID" -> gameID
+          ).apply.head
+          
+    }
+    
+    game = new Game(row[Long]("id"), row[String]("white"), row[String]("black"))
+    
+    return game
+    
+  }
+  
   def addMove(gameID : Long, player : String, move : String) {
     
     DB.withTransaction{ implicit conn =>
