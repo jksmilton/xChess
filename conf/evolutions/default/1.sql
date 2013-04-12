@@ -31,6 +31,12 @@ CREATE TABLE "games" (
 	PRIMARY KEY (id)
 );
 
+CREATE TABLE "random_game_queue" (
+	id SERIAL,
+	player varchar(255) REFERENCES "xusers"(xauthkey),
+	PRIMARY KEY (id)
+);
+
 -- CREATE SEQUENCE transcript_id_seq;
 
 CREATE TABLE "transcripts" (
@@ -94,3 +100,5 @@ DROP TABLE "pending_friend_requests";
 DROP TABLE "pending_game_requests";
 
 DROP TABLE "application_ids";
+
+DROP TABLE "random_game_queue";

@@ -271,4 +271,30 @@ object Application extends Controller {
     
   }
   
+  def requestRandomGame(user : String, appID : String) = Action { request=>
+  
+    if(!DatabaseAccessor.authCheck(appID)){
+        
+        Ok("Application not authorised")
+        
+    }
+    
+    var otherPlayer = DatabaseAccessor.randomGameCreate(user)
+    
+    otherPlayer = DatabaseAccessor.getUser(otherPlayer, DatabaseAccessor.AUTHKEY, true).handle
+    
+    Ok(otherPlayer)
+  
+  }
+  
+  def requestGame(user : String, otherPlayer : String, appID : String) = Action {request =>
+  
+    val opponent = DatabaseAccessor.getUser(otherPlayer, DatabaseAccessor.HANDLE, true)
+    
+    DatabaseAccessor.gameRequestCreate(user, opponent.xauth)
+    
+    Ok("Success")
+    
+  }
+  
 }

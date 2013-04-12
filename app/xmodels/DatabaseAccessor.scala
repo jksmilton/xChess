@@ -231,5 +231,61 @@ object DatabaseAccessor {
     
   }
   
+  def randomGameCreate(user : String) : String = {
+    
+    var otherPlayer : String = null
+    var rows : List[String] = null
+    
+    DB.withConnection( implicit conn =>
+      
+      rows = SQL("select * from \"random_game_queue\" where player <> {user}").on("user" -> user).apply.map(row => 
+         row[String]("player")
+	  ).toList
+      
+    )
+    
+    if(rows.length > 0){
+      
+      otherPlayer = rows.head
+      
+      DB.withConnection(implicit conn =>
+      
+        SQL("""
+            insert into "pending_game_requests"(requester, requestee) values({player}, {otherplayer});
+            delete from "random_game_queue" where player = {otherplayer};
+            """).on(
+            
+                "player" -> user,
+                "otherplayer" -> otherPlayer
+                
+            ).executeUpdate
+      
+      )
+      
+    } else {
+      DB.withConnection( implicit conn =>
+         SQL("insert into \"random_game_queue\"(player) values({player})").on("player" -> user).executeInsert()
+      )
+      otherPlayer = user
+    }
+    
+    return otherPlayer
+    
+  }
+  
+  def gameRequestCreate(user : String, opponent : String) {
+    
+    DB.withConnection(implicit conn =>
+    
+      SQL("insert into \"pending_game_requests\"(requester, requestee) values({player}, {otherplayer})").on(
+      
+          "player" -> user,
+          "otherplayer" -> opponent
+          
+      ).executeInsert()
+      
+    )
+    
+  }
   
 }
