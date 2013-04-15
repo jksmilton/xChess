@@ -1,6 +1,6 @@
 /****************************************************************************
  * jcMove.java - An encapsulation of a chess move and its consequences
- * by François Dominic Laramée
+ * by FranÃ§ois Dominic LaramÃ©e
  *
  * Purpose: This class is used all over the place.  It contains a move's
  * source and target squares, a type identifier (i.e., a normal move, a pawn
@@ -40,7 +40,7 @@ public class jcMove
   // a move type ID
   public static final int PROMOTION_MASK = 480;
   public static final int NO_PROMOTION_MASK = 31;
-
+  
   // Alphabeta may return an actual move potency evaluation, or an upper or
   // lower bound only (in case a cutoff happens).  We need to store this
   // information in the transposition table to make sure that a given

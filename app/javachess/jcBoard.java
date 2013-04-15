@@ -1,6 +1,6 @@
 /*****************************************************************************
  * jcBoard.java - Encapsulation of a chess board
- * by François Dominic Laramée
+ * by FranÃ§ois Dominic LaramÃ©e
  *
  * Purpose: This object contains all of the data and methods required to
  * process a chess board in the game.  It uses the ubiquitous "bitboard"

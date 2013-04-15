@@ -1,6 +1,6 @@
 /******************************************************************************
  * jcMoveListGenerator.java - Find all pseudo-legal moves given a board state
- * by F.D. Laramée
+ * by F.D. LaramÃ©e
  *
  * Purpose: Identify a list of possible moves
  *

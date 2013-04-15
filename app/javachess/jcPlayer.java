@@ -1,6 +1,6 @@
 /****************************************************************************
  * jcPlayer.java - An abstract base class for all types of players
- * by François Dominic Laramée
+ * by FranÃ§ois Dominic LaramÃ©e
  *
  * Purpose: There are currently two types of players in JavaChess: the computer
  * player and the human player.  At a later time, other types may be added,

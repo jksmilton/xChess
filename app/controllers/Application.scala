@@ -62,8 +62,8 @@ object Application extends Controller {
   }
   
   def generateRequestToken(appID : String) = Action{ request =>
-     // val callback = "http://www.xchess.co.uk/application/callbacks/oauth" //PRODUCTION
-      val callback = "http://localhost:9000/application/callbacks/oauth" //TEST
+      val callback = "http://www.xchess.co.uk/application/callbacks/oauth" //PRODUCTION
+      //val callback = "http://localhost:9000/application/callbacks/oauth" //TEST
           
       if(!DatabaseAccessor.authCheck(appID)){
         
@@ -102,7 +102,7 @@ object Application extends Controller {
       
 	  val secret = Cache.getAs[String](token).get
 	  val requestToken= RequestToken(token, secret)
-	  
+	  println("verifier: " + verifier + "; token: " + token);
 	  twitter.retrieveAccessToken(requestToken, verifier) match {
 	  	case Right(t) => {
 	  	    
@@ -116,13 +116,13 @@ object Application extends Controller {
 			  	    response.map( response =>
 			  	        
 			  	        
-			  	        Ok(generate(setUp((response.json \ "screen_name").as[String], t.token, tokenHash, t.secret)))
+			  	        Redirect("xchess:" + generate(setUp((response.json \ "screen_name").as[String], t.token, tokenHash, t.secret)))
 			  	        
 			  	        
 			  	    )
   	        	}
   	        } else {
-  	            Ok(generate(setUp(dbUser)))
+  	            Redirect("xchess:" + generate(setUp(dbUser)))
   	        }
 	  	    
 	  	}

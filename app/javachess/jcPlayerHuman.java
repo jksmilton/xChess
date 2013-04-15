@@ -1,6 +1,6 @@
 /**************************************************************************
  * jcPlayerHuman.java - Interface to a human player
- * by François Dominic Laramée
+ * by Franï¿½ois Dominic Laramï¿½e
  *
  * Purpose: This object allows a human player to play JavaChess.  Its only
  * real job is to query the human player for his move.
@@ -16,7 +16,6 @@ package javachess;
 import javachess.jcMove;
 import javachess.jcBoard;
 import javachess.jcMoveListGenerator;
-import java.io.*;
 import controllers.MoveException;
 public class jcPlayerHuman extends jcPlayer
 {
