@@ -23,7 +23,7 @@ object Application extends Controller {
 	    "https://www.google.com/accounts/OAuthGetAccessToken",
 	    "https://www.google.com/accounts/OAuthAuthorizeToken", googlekey),
 	    true)
-  val twitterkey = ConsumerKey("HG7GNOmWMY8KLV5Dob0OWw","tHnxXOxy20hYA8G9HM3UlWicUa4kAfK3ChNc5HWIY")
+  val twitterkey = ConsumerKey("7HmXfn2q6TfTRI5KwIXfQ","GCllCxvxennAlZLFRglgBUq0ZUO3A30QPN6T0e9jE")
   
   val twitter= OAuth(ServiceInfo(
 	    "https://api.twitter.com/oauth/request_token",
@@ -74,6 +74,7 @@ object Application extends Controller {
 		  twitter.retrieveRequestToken(callback) match {
 	          case Right(t) => {
 	              Cache.set(t.token, t.secret)
+	              println("secret: " + t.secret)
 	              Ok(twitter.redirectUrl(t.token))
 	          }
 	          case Left(e) => throw e
@@ -101,6 +102,7 @@ object Application extends Controller {
   def exchangeRequestForAccess(verifier: String, token: String) = Action{ request=>
       
 	  val secret = Cache.getAs[String](token).get
+	  println("secret: " + secret )
 	  val requestToken= RequestToken(token, secret)
 	  println("verifier: " + verifier + "; token: " + token);
 	  twitter.retrieveAccessToken(requestToken, verifier) match {
@@ -114,15 +116,14 @@ object Application extends Controller {
   	        if(dbUser ==null){
   	        	Async{
 			  	    response.map( response =>
-			  	        
-			  	        
-			  	        Redirect("xchess:" + generate(setUp((response.json \ "screen_name").as[String], t.token, tokenHash, t.secret)))
+			  	        			  	        
+			  	        Redirect("xchess://" + generate(setUp((response.json \ "screen_name").as[String], t.token, tokenHash, t.secret)))
 			  	        
 			  	        
 			  	    )
   	        	}
   	        } else {
-  	            Redirect("xchess:" + generate(setUp(dbUser)))
+  	          Redirect("xchess://" + generate(setUp(dbUser)))
   	        }
 	  	    
 	  	}
