@@ -37,6 +37,21 @@ object DatabaseAccessor {
     
   }
   
+  def rejectFriendRequest(user:String, friend:String){
+    
+    DB.withConnection(implicit conn=>
+    
+      SQL("delete from \"pending_friend_requests\" where requestee={user} AND requester={friend}").on(
+      
+          "user" -> user,
+          "friend" -> friend
+          
+      ).executeUpdate
+      
+    )
+    
+  }
+  
   def authCheck(appID:String) : Boolean = {
     DB.withConnection{implicit conn =>
       var rows = SQL("Select * from \"application_ids\" where appID={id}").on("id" -> appID).apply()
@@ -124,13 +139,16 @@ object DatabaseAccessor {
     
   } 
   
-  def createFriendship(user : ChessUser, friend : ChessUser) = {
+  def createFriendship(user : String, friend : String) = {
     
     DB.withTransaction{ implicit conn =>
       
-      SQL("insert into \"friendships\"(userone, usertwo) values({user}, {friend})").on(
-          "user" -> user.xauth,
-          "friend" -> friend.xauth
+      SQL("""
+          insert into "friendships"(userone, usertwo) values({user}, {friend});
+    	  delete from "pending_friend_requests" where requester={friend} AND requestee={user};  
+      """).on(
+          "user" -> user,
+          "friend" -> friend
       ).executeUpdate()
       
       conn.commit()
@@ -175,7 +193,7 @@ object DatabaseAccessor {
    
     DB.withConnection(implicit conn=>
     
-      return SQL("select * from \"pending_game_requests\" where requester={user} OR requestee={user}").on("user" -> user).apply().map(row=>
+      return SQL("select * from \"pending_game_requests\" where requestee={user}").on("user" -> user).apply().map(row=>
       
           new Game(row[Long]("id"), row[String]("requester"), row[String]("requestee"))
           

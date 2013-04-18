@@ -6,17 +6,17 @@
 GET     /                         			  				controllers.Application.index
 
 # API access stuff
-GET		/application/_API/getUser/:user/:appID					controllers.Application.getUser(user : String, appID : String)
-GET		/application/_API/getRequestToken/:appID				controllers.Application.generateRequestToken(appID : String)
-GET		/application/_API/getGame/:id/:appID					controllers.Application.getGame(id : Long, appID : String)
-GET		/application/callbacks/oauth							controllers.Application.exchangeRequestForAccess(oauth_verifier, oauth_token)
-POST	/application/_API/addFriend/:user/:friend/:appID		controllers.Application.addFriend(user : String, friend : String, appID : String)
-POST	/application/_API/updateEmail/:user/:appID				controllers.Application.editEmail(user : String, appID : String)
-POST	/application/_API/addMove/:user/:gameID/:move/:appID	controllers.Application.addMove(user : String, gameID : Long, move : String, appID : String)
-GET		/application/_API/requestRandomGame/:user/:appID		controllers.Application.requestRandomGame(user : String, appID : String)
-GET		/application/_API/requestGame/:user/:friend/:appID		controllers.Application.requestGame(user : String, friend : String, appID : String)
-GET		/application/_API/requestPendingGames/:user/:appID		controllers.Application.requestPendingGames(user:String, appID:String)
-GET		/application/_API/requestPendingFriends/:user/:appID	controllers.Application.requestPendingFriends(user:String, appID:String)
-
+GET		/application/_API/getUser/:user/:appID									controllers.Application.getUser(user : String, appID : String)
+GET		/application/_API/getRequestToken/:appID								controllers.Application.generateRequestToken(appID : String)
+GET		/application/_API/getGame/:id/:appID									controllers.Application.getGame(id : Long, appID : String)
+GET		/application/callbacks/oauth											controllers.Application.exchangeRequestForAccess(oauth_verifier, oauth_token)
+POST	/application/_API/addFriend/:user/:friend/:appID						controllers.Application.addFriend(user : String, friend : String, appID : String)
+POST	/application/_API/updateEmail/:user/:appID								controllers.Application.editEmail(user : String, appID : String)
+POST	/application/_API/addMove/:user/:gameID/:move/:appID					controllers.Application.addMove(user : String, gameID : Long, move : String, appID : String)
+GET		/application/_API/requestRandomGame/:user/:appID						controllers.Application.requestRandomGame(user : String, appID : String)
+GET		/application/_API/requestGame/:user/:friend/:appID						controllers.Application.requestGame(user : String, friend : String, appID : String)
+GET		/application/_API/requestPendingGames/:user/:appID						controllers.Application.requestPendingGames(user:String, appID:String)
+GET		/application/_API/requestPendingFriends/:user/:appID					controllers.Application.requestPendingFriends(user:String, appID:String)
+POST	/application/_API/acceptPendingFriends/:user/:friend/:accept/:appID		controllers.Application.acceptFriendRequest(user:String, friend:String, accepted:Boolean, appID:String)
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               						controllers.Assets.at(path="/public", file)

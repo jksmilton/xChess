@@ -339,4 +339,36 @@ object Application extends Controller {
     }
   }
   
+  def acceptFriendRequest(user:String, friend:String, accepted:Boolean, appID:String) = Action{req =>
+  
+    if(!DatabaseAccessor.authCheck(appID)){
+        
+        Ok("Application not authorised")
+        
+    } else {
+      
+      var friendUser = DatabaseAccessor.getUser(friend, DatabaseAccessor.HANDLE, true)
+      
+      val pendings = DatabaseAccessor.getPendingFriends(user)
+      
+      if(pendings.contains(friend) && accepted){
+        
+        DatabaseAccessor.createFriendship(user, friendUser.xauth)
+        Ok("Success")
+        
+      } else if(pendings.contains(friend)) {
+        
+        DatabaseAccessor.rejectFriendRequest(user, friendUser.xauth)
+        Ok("Success")
+        
+      }else {
+        
+        Ok("Request not found")
+        
+      }
+      
+    }
+    
+  }
+  
 }
