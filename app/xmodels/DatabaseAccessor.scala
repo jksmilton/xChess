@@ -97,10 +97,10 @@ object DatabaseAccessor {
     
     DB.withConnection{implicit conn =>
       
-      return SQL("SELECT \"xusers\".xauthkey, \"xusers\".handle FROM \"xusers\", \"friendships\" WHERE (\"friendships\".userone = {user} AND \"xusers\".xauthkey = \"friendships\".usertwo) OR (\"friendships\".usertwo = {user} AND \"xusers\".xauthkey = \"friendships\".userone)").on(
+      return SQL("SELECT \"xusers\".xauthkey, \"xusers\".handle as fhandle FROM \"xusers\", \"friendships\" WHERE (\"friendships\".userone = {user} AND \"xusers\".xauthkey = \"friendships\".usertwo) OR (\"friendships\".usertwo = {user} AND \"xusers\".xauthkey = \"friendships\".userone)").on(
     	"user" -> xauth
       ).apply().map(row=>
-      	row[String]("handle")
+      	row[String]("fhandle")
       ).toList
       
     }
