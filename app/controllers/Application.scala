@@ -322,7 +322,19 @@ object Application extends Controller {
     
     	var games = DatabaseAccessor.getPendingGames(user)
   
-    	Ok(generate(games))
+    	var newGames = List[Game]()
+    
+	    for(g <- games){
+	      
+	      var whiteH = DatabaseAccessor.getUser(g.white, DatabaseAccessor.AUTHKEY, true).handle
+	      var blackH = DatabaseAccessor.getUser(g.black, DatabaseAccessor.AUTHKEY, true).handle
+	      
+	      newGames ::= new Game(g.id, whiteH, blackH)
+	      
+	    }
+    
+    	
+    	Ok(generate(newGames))
     }
   }
   
