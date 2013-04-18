@@ -204,7 +204,7 @@ object DatabaseAccessor {
           
     }
     
-    game = new Game(row[Long]("id"), row[String]("white"), row[String]("black"))
+    game = new Game(row[Long]("id"), row[String]("requester"), row[String]("requestee"))
     
     return game
     
