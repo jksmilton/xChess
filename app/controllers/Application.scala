@@ -383,4 +383,36 @@ object Application extends Controller {
     
   }
   
+  def acceptPendingGameRequest(user:String, gameID:Long, accepted:String, appID:String) = Action {
+    
+    if(!DatabaseAccessor.authCheck(appID)){
+        
+        Ok("Application not authorised")
+        
+    } else {
+      
+      var game = DatabaseAccessor.getPendingGame(gameID)
+           
+      if((user.equals(game.black) || user.equals(game.white) ) && accepted.equals("true")){
+        
+        DatabaseAccessor.createGame(game.white, game.black, game.id)
+        
+        Ok("Success")
+        
+      } else if(user.equals(game.black) || user.equals(game.white)) {
+        
+        DatabaseAccessor.rejectGame(game.id)
+        Ok("Success")
+        
+      } else {
+        
+        Ok("Request not found")
+        
+      }
+      
+    }
+    
+  }
+  
+  
 }

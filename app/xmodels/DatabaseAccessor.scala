@@ -157,13 +157,17 @@ object DatabaseAccessor {
     
   }
   
-  def createGame(white : ChessUser, black : ChessUser) : Long = {
+  def createGame(white : String, black : String, id : Long) : Long = {
       
       DB.withConnection{ implicit conn =>
           
-          return SQL("insert into \"games\"(white, black) values({white},{black})").on(
-        	"white" -> white.xauth,
-        	"black" -> black.xauth
+          return SQL("""
+              insert into "games"(white, black) values({white},{black});
+              delete from "pending_game_requests" where id={id}
+          """).on(
+        	"white" -> white,
+        	"black" -> black,
+        	"id" -> id
           ).executeInsert().head
          
       }
@@ -185,6 +189,36 @@ object DatabaseAccessor {
     game = new Game(row[Long]("id"), row[String]("white"), row[String]("black"))
     
     return game
+    
+  }
+  
+  def getPendingGame(gameID:Long) : Game = {
+    
+    var game : Game = null
+    var row : anorm.SqlRow = null 
+    DB.withConnection{ implicit conn=>
+    
+      row = SQL("select * from \"pending_game_requests\" where id = {gameID}").on(
+          "gameID" -> gameID
+          ).apply.head
+          
+    }
+    
+    game = new Game(row[Long]("id"), row[String]("white"), row[String]("black"))
+    
+    return game
+    
+  }
+  
+  def rejectGame(gameID : Long){
+    
+    DB.withConnection{ implicit conn=>
+    
+      SQL("delete from \"pending_game_requests\" where id = {gameID}").on(
+          "gameID" -> gameID
+          ).executeUpdate
+          
+    }
     
   }
   

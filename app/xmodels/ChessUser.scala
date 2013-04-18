@@ -18,9 +18,9 @@ case class ChessUser (authString: String, xauth: String, email: String, handle: 
     
   }
   
-  override def equals(obj : Any) : Boolean = authString.equals(obj.toString())
+  override def equals(obj : Any) : Boolean = xauth.equals(obj.toString())
   
-  override def toString () : String = handle
+  override def toString () : String = xauth
   
   def convertGamesToCLient(){
     
