@@ -17,6 +17,6 @@ GET		/application/_API/requestRandomGame/:user/:appID						controllers.Applicati
 GET		/application/_API/requestGame/:user/:friend/:appID						controllers.Application.requestGame(user : String, friend : String, appID : String)
 GET		/application/_API/requestPendingGames/:user/:appID						controllers.Application.requestPendingGames(user:String, appID:String)
 GET		/application/_API/requestPendingFriends/:user/:appID					controllers.Application.requestPendingFriends(user:String, appID:String)
-POST	/application/_API/acceptPendingFriends/:user/:friend/:accept/:appID		controllers.Application.acceptFriendRequest(user:String, friend:String, accepted:Boolean, appID:String)
+POST	/application/_API/acceptPendingFriends/:user/:friend/:accept/:appID		controllers.Application.acceptFriendRequest(user:String, friend:String, accept:Boolean, appID:String)
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               						controllers.Assets.at(path="/public", file)
