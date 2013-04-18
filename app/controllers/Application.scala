@@ -339,7 +339,7 @@ object Application extends Controller {
     }
   }
   
-  def acceptFriendRequest(user:String, friend:String, accepted:Boolean, appID:String) = Action{req =>
+  def acceptFriendRequest(user:String, friend:String, accepted:String, appID:String) = Action{req =>
   
     if(!DatabaseAccessor.authCheck(appID)){
         
@@ -351,7 +351,7 @@ object Application extends Controller {
       
       val pendings = DatabaseAccessor.getPendingFriends(user)
       
-      if(pendings.contains(friend) && accepted){
+      if(pendings.contains(friend) && accepted.equals("true")){
         
         DatabaseAccessor.createFriendship(user, friendUser.xauth)
         Ok("Success")
