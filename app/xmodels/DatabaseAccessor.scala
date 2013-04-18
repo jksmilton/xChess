@@ -16,7 +16,7 @@ object DatabaseAccessor {
       val getUsers = SQL("Select * from \"xusers\"")
       
       returnUsers = getUsers().map(row =>
-        parseIntoUser(ChessUser(row[String]("oauthkey"), row[String]("xauthkey"), row[String]("handle"), row[String]("email"), row[String]("secret")), true)
+        parseIntoUser(ChessUser(row[String]("oauthkey"), row[String]("xauthkey"), row[String]("email"), row[String]("handle"), row[String]("secret")), true)
       ).toList
 	      
     }
@@ -26,7 +26,7 @@ object DatabaseAccessor {
   def parseIntoUser(user:ChessUser, internal : Boolean) : ChessUser = {
     var tempUser = user
     if(!internal){
-      tempUser = ChessUser("xxx", "xxx", user.handle, user.email, "xxx")
+      tempUser = ChessUser("xxx", "xxx", user.email, user.handle, "xxx")
     }
 	
 	tempUser.friends = getFriends(user.xauth)
@@ -69,7 +69,7 @@ object DatabaseAccessor {
     	  
     	}
     	var row = rows.head
-    	return parseIntoUser(ChessUser(row[String]("oauthkey"), row[String]("xauthkey"), row[String]("handle"), row[String]("email"), row[String]("secret")), internal)
+    	return parseIntoUser(ChessUser(row[String]("oauthkey"), row[String]("xauthkey"), row[String]("email"), row[String]("handle"), row[String]("secret")), internal)
     	
     	
     }
@@ -167,6 +167,33 @@ object DatabaseAccessor {
     game = new Game(row[Long]("id"), row[String]("white"), row[String]("black"))
     
     return game
+    
+  }
+  
+  def getPendingGames(user : String) : List[Game] = {
+    
+   
+    DB.withConnection(implicit conn=>
+    
+      return SQL("select * from \"pending_game_requests\" where requester={user} OR requestee={user}").on("user" -> user).apply().map(row=>
+      
+          new Game(row[Long]("id"), row[String]("requester"), row[String]("requestee"))
+          
+      ).toList
+      
+    )
+    
+  }
+  
+  def getPendingFriends(user : String) : List[String] = {
+    
+    DB.withConnection(implicit conn=> 
+    
+      return SQL("select \"xusers\".handle as uhandle from \"pending_friend_requests\", \"xusers\" where requester=\"xusers\".xauthkey AND requestee={user} ").on("user" -> user).apply().map( row=>
+    		  row[String]("uhandle")
+      ).toList
+    
+    )
     
   }
   
@@ -287,5 +314,7 @@ object DatabaseAccessor {
     )
     
   }
+  
+  
   
 }

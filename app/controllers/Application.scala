@@ -51,6 +51,8 @@ object Application extends Controller {
 	      
 	    } else {
 	      
+	      user.convertGamesToCLient
+	      
 	      val jsonResult = generate(user)
 	      
 	      Ok(jsonResult)
@@ -230,25 +232,25 @@ object Application extends Controller {
       
       Ok("Player not a member of this game")
       
+    } else {
+    
+	    val board = buildBoard(DatabaseAccessor.getTranscript(gameID))
+	    
+	    if((board.GetCurrentPlayer() == 0 && user.equals(game.black)) || (board.GetCurrentPlayer() == 1 && user.equals(game.white))){
+	      Ok("Not your turn")
+	    }
+	    
+	    val xmove = new Move(move, user)
+	    var newMove = xmove.convertToEngine
+	    
+	    val player = new jcPlayerHuman(board.GetCurrentPlayer())
+	    
+	    newMove = player.GetMove(board, newMove, newMove.MoveType)
+	    
+	    DatabaseAccessor.addMove(gameID, user, move)
+	    
+	    Ok("Success")
     }
-    
-    val board = buildBoard(DatabaseAccessor.getTranscript(gameID))
-    
-    if((board.GetCurrentPlayer() == 0 && user.equals(game.black)) || (board.GetCurrentPlayer() == 1 && user.equals(game.white))){
-      Ok("Not your turn")
-    }
-    
-    val xmove = new Move(move, user)
-    var newMove = xmove.convertToEngine
-    
-    val player = new jcPlayerHuman(board.GetCurrentPlayer())
-    
-    newMove = player.GetMove(board, newMove, newMove.MoveType)
-    
-    DatabaseAccessor.addMove(gameID, user, move)
-    
-    Ok("Success")
-    
   }
   
   def buildBoard(transcript: List[String] ) : jcBoard = {
@@ -278,24 +280,63 @@ object Application extends Controller {
         
         Ok("Application not authorised")
         
+    } else {
+    
+	    var otherPlayer = DatabaseAccessor.randomGameCreate(user)
+	    
+	    otherPlayer = DatabaseAccessor.getUser(otherPlayer, DatabaseAccessor.AUTHKEY, true).handle
+	    
+	    Ok(otherPlayer)
+    
     }
-    
-    var otherPlayer = DatabaseAccessor.randomGameCreate(user)
-    
-    otherPlayer = DatabaseAccessor.getUser(otherPlayer, DatabaseAccessor.AUTHKEY, true).handle
-    
-    Ok(otherPlayer)
   
   }
   
   def requestGame(user : String, otherPlayer : String, appID : String) = Action {request =>
+  	
+    if(!DatabaseAccessor.authCheck(appID)){
+        
+        Ok("Application not authorised")
+        
+    } else {
+    
+    	val opponent = DatabaseAccessor.getUser(otherPlayer, DatabaseAccessor.HANDLE, true)
+    
+	    DatabaseAccessor.gameRequestCreate(user, opponent.xauth)
+	    
+	    Ok("Success")
+	    
+    }
+    
+    
+    
+  }
   
-    val opponent = DatabaseAccessor.getUser(otherPlayer, DatabaseAccessor.HANDLE, true)
+  def requestPendingGames(user:String, appID:String) = Action{ request =>
+  
+    if(!DatabaseAccessor.authCheck(appID)){
+        
+        Ok("Application not authorised")
+        
+    } else {
     
-    DatabaseAccessor.gameRequestCreate(user, opponent.xauth)
+    	var games = DatabaseAccessor.getPendingGames(user)
+  
+    	Ok(generate(games))
+    }
+  }
+  
+  def requestPendingFriends(user:String, appID:String) = Action { request=>
+    if(!DatabaseAccessor.authCheck(appID)){
+        
+        Ok("Application not authorised")
+        
+    } else {
     
-    Ok("Success")
-    
+    	var friends = DatabaseAccessor.getPendingFriends(user)
+  
+    	Ok(generate(friends))
+    }
   }
   
 }

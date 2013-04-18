@@ -22,4 +22,21 @@ case class ChessUser (authString: String, xauth: String, email: String, handle: 
   
   override def toString () : String = handle
   
+  def convertGamesToCLient(){
+    
+    var newGames = List[Game]()
+    
+    for(g <- games){
+      
+      var whiteH = DatabaseAccessor.getUser(g.white, DatabaseAccessor.AUTHKEY, true).handle
+      var blackH = DatabaseAccessor.getUser(g.black, DatabaseAccessor.AUTHKEY, true).handle
+      
+      newGames ::= new Game(g.id, whiteH, blackH)
+      
+    }
+    
+    games = newGames
+    
+  }
+  
 }

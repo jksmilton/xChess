@@ -15,6 +15,8 @@ POST	/application/_API/updateEmail/:user/:appID				controllers.Application.editE
 POST	/application/_API/addMove/:user/:gameID/:move/:appID	controllers.Application.addMove(user : String, gameID : Long, move : String, appID : String)
 GET		/application/_API/requestRandomGame/:user/:appID		controllers.Application.requestRandomGame(user : String, appID : String)
 GET		/application/_API/requestGame/:user/:friend/:appID		controllers.Application.requestGame(user : String, friend : String, appID : String)
+GET		/application/_API/requestPendingGames/:user/:appID		controllers.Application.requestPendingGames(user:String, appID:String)
+GET		/application/_API/requestPendingFriends/:user/:appID	controllers.Application.requestPendingFriends(user:String, appID:String)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               						controllers.Assets.at(path="/public", file)
