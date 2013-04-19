@@ -278,7 +278,7 @@ object Application extends Controller {
   
     if(!DatabaseAccessor.authCheck(appID)){
         
-        Ok("Application not authorised")
+        Ok("@Application not authorised")
         
     } else {
     

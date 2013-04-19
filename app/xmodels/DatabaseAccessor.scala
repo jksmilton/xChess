@@ -162,8 +162,8 @@ object DatabaseAccessor {
       DB.withConnection{ implicit conn =>
           
           return SQL("""
-              insert into "games"(white, black) values({white},{black});
-              delete from "pending_game_requests" where id={id}
+              delete from "pending_game_requests" where id={id};
+              insert into "games"(white, black) values({white},{black});              
           """).on(
         	"white" -> white,
         	"black" -> black,
