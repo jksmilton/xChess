@@ -161,17 +161,21 @@ object DatabaseAccessor {
       
       DB.withConnection{ implicit conn =>
           
-          return SQL("""
-              delete from "pending_game_requests" where id={id};
-              insert into "games"(white, black) values({white},{black});              
-          """).on(
-        	"white" -> white,
-        	"black" -> black,
-        	"id" -> id
+          SQL("delete from \"pending_game_requests\" where id={id}").on(
+        
+              "id" -> id
+          
           ).executeInsert().head
          
       }
-      
+      DB.withConnection{ implicit conn =>
+          
+          return SQL("insert into \"games\"(white, black) values({white},{black})").on(
+        	"white" -> white,
+        	"black" -> black
+          ).executeInsert().head
+         
+      }
   }
   
   def getGame(gameID : Long) : Game = {
