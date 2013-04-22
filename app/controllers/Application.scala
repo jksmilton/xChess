@@ -218,38 +218,39 @@ object Application extends Controller {
   
   }
   
-  def addMove(user:String, gameID:Long, move:String, appID:String) = Action { request=>
+  def addMove(user:String, gameID:Long, start:String, end : String, promotion : String, appID:String) = Action { request=>
     
     if(!DatabaseAccessor.authCheck(appID)){
         
         Ok("Application not authorised")
         
-    }
-    
-    val game = DatabaseAccessor.getGame(gameID)
-    
-    if(!(user.equals(game.white) || user.equals(game.black) )){
-      
-      Ok("Player not a member of this game")
-      
     } else {
     
-	    val board = buildBoard(DatabaseAccessor.getTranscript(gameID))
+	    val game = DatabaseAccessor.getGame(gameID)
 	    
-	    if((board.GetCurrentPlayer() == 0 && user.equals(game.black)) || (board.GetCurrentPlayer() == 1 && user.equals(game.white))){
-	      Ok("Not your turn")
+	    if(!(user.equals(game.white) || user.equals(game.black) )){
+	      
+	      Ok("Player not a member of this game")
+	      
+	    } else {
+	    
+		    val board = buildBoard(DatabaseAccessor.getTranscript(gameID))
+		    
+		    if((board.GetCurrentPlayer() == 0 && user.equals(game.black)) || (board.GetCurrentPlayer() == 1 && user.equals(game.white))){
+		      Ok("Not your turn")
+		    }
+		    
+		    val xmove = new Move(start + " " + end + " " + promotion, user)
+		    var newMove = xmove.convertToEngine
+		    
+		    val player = new jcPlayerHuman(board.GetCurrentPlayer())
+		    
+		    newMove = player.GetMove(board, newMove, newMove.MoveType)
+		    
+		    DatabaseAccessor.addMove(gameID, user, xmove.move)
+		    
+		    Ok("Success")
 	    }
-	    
-	    val xmove = new Move(move, user)
-	    var newMove = xmove.convertToEngine
-	    
-	    val player = new jcPlayerHuman(board.GetCurrentPlayer())
-	    
-	    newMove = player.GetMove(board, newMove, newMove.MoveType)
-	    
-	    DatabaseAccessor.addMove(gameID, user, move)
-	    
-	    Ok("Success")
     }
   }
   

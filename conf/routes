@@ -12,7 +12,7 @@ GET		/application/_API/getGame/:id/:appID									controllers.Application.getGam
 GET		/application/callbacks/oauth											controllers.Application.exchangeRequestForAccess(oauth_verifier, oauth_token)
 POST	/application/_API/addFriend/:user/:friend/:appID						controllers.Application.addFriend(user : String, friend : String, appID : String)
 POST	/application/_API/updateEmail/:user/:appID								controllers.Application.editEmail(user : String, appID : String)
-POST	/application/_API/addMove/:user/:gameID/:move/:appID					controllers.Application.addMove(user : String, gameID : Long, move : String, appID : String)
+POST	/application/_API/addMove/:user/:gameID/:start/:end/:promote/:appID		controllers.Application.addMove(user : String, gameID : Long, start : String, end : String, promote:String, appID : String)
 POST	/application/_API/requestRandomGame/:user/:appID						controllers.Application.requestRandomGame(user : String, appID : String)
 POST	/application/_API/requestGame/:user/:friend/:appID						controllers.Application.requestGame(user : String, friend : String, appID : String)
 GET		/application/_API/requestPendingGames/:user/:appID						controllers.Application.requestPendingGames(user:String, appID:String)
