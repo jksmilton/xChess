@@ -15,7 +15,7 @@ case class Move (move : String, player : String) {
   def convertToEngine() : jcMove = {
     
     var mov = new jcMove
-    
+    mov.MoveType == jcMove.MOVE_NORMAL;
     if(move.equals("RESIG")){
       
       mov.MoveType = jcMove.MOVE_RESIGN
