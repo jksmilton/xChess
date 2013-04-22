@@ -95,7 +95,7 @@ object Application extends Controller {
         
       } else {
           
-	    val transcript = new Transcript(DatabaseAccessor.getTranscript(gameID))
+	    val transcript = DatabaseAccessor.getTranscript(gameID)
 	        
 	    Ok(generate(transcript))
     }
