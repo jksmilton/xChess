@@ -15,7 +15,8 @@ case class Move (move : String, player : String) {
   def convertToEngine() : jcMove = {
     
     var mov = new jcMove
-    mov.MoveType == jcMove.MOVE_NORMAL;
+    mov.MoveType == jcMove.MOVE_NORMAL
+    
     if(move.equals("RESIG")){
       
       mov.MoveType = jcMove.MOVE_RESIGN
@@ -25,7 +26,7 @@ case class Move (move : String, player : String) {
       var positions = move.split(" ")
       mov.SourceSquare = parseSquare(positions(0))
       mov.DestinationSquare = parseSquare(positions(1))
-      
+      mov.MoveType == jcMove.MOVE_NORMAL
       if (positions.length > 2 && positions(2).equals("Q")){
         mov.MoveType = jcMove.MOVE_PROMOTION_QUEEN
       } else if (positions.length > 2 && positions(2).equals("K")){
