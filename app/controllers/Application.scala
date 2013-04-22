@@ -35,7 +35,7 @@ object Application extends Controller {
     TODO
   }
   
-  def resignGame(user : String, gameID : Long, appID: String){
+  def resignGame(user : String, gameID : Long, appID: String) = Action{
     
     if(!DatabaseAccessor.authCheck(appID)){
         
