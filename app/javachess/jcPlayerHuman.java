@@ -141,6 +141,7 @@ public class jcPlayerHuman extends jcPlayer
       Pseudos.ComputeLegalMoves( theBoard );
       if ( !Pseudos.Find( Mov ) )
       {
+    	  Mov.Print();
        throw new MoveException(MoveException.illegalMoveType);
       }
 
