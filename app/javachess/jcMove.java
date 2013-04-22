@@ -50,7 +50,7 @@ public class jcMove
   public static final int EVALTYPE_LOWERBOUND = 2;
 
   // A sentinel value used to identify jcMove fields without valid data
-  public static final int NULL_MOVE = -1;
+  public static final int NULL_MOVE = 0;
 
   /************************************************************************
    * DATA MEMBERS
