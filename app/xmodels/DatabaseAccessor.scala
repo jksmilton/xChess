@@ -114,7 +114,7 @@ object DatabaseAccessor {
           return SQL("select * from \"games\" where white = {user} OR black = {user}").on(
         	"user" -> user
           ).apply().map( row=>
-          	new Game(row[Long]("id"), row[String]("white"), row[String]("black"))
+          	new Game(row[Long]("id"), row[String]("white"), row[String]("black"), row[Int]("turn"))
           ).toList
           
       }
@@ -190,7 +190,7 @@ object DatabaseAccessor {
           
     }
     
-    game = new Game(row[Long]("id"), row[String]("white"), row[String]("black"))
+    game = new Game(row[Long]("id"), row[String]("white"), row[String]("black"), row[Int]("turn"))
     
     return game
     
@@ -208,7 +208,7 @@ object DatabaseAccessor {
           
     }
     
-    game = new Game(row[Long]("id"), row[String]("requester"), row[String]("requestee"))
+    game = new Game(row[Long]("id"), row[String]("requester"), row[String]("requestee"), 0)
     
     return game
     
@@ -233,7 +233,7 @@ object DatabaseAccessor {
     
       return SQL("select * from \"pending_game_requests\" where requestee={user}").on("user" -> user).apply().map(row=>
       
-          new Game(row[Long]("id"), row[String]("requester"), row[String]("requestee"))
+          new Game(row[Long]("id"), row[String]("requester"), row[String]("requestee"), 0)
           
       ).toList
       
@@ -253,7 +253,7 @@ object DatabaseAccessor {
     
   }
   
-  def addMove(gameID : Long, player : String, move : String) {
+  def addMove(gameID : Long, player : String, move : String, turn : Int) {
     
     DB.withTransaction{ implicit conn =>
       
@@ -266,6 +266,12 @@ object DatabaseAccessor {
       ).executeInsert().head
       
       conn.commit()
+     
+      SQL("update \"games\" set turn={turn} where id={gameID}").on(
+      
+          "turn" -> turn,
+          "gameID" -> gameID
+      ).executeUpdate
       
     }
     

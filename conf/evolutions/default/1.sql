@@ -28,6 +28,7 @@ CREATE TABLE "games" (
 	id SERIAL,
 	white varchar(255) REFERENCES "xusers"(xauthkey),
 	black varchar(255) REFERENCES "xusers"(xauthkey),
+	turn integer DEFAULT 0,
 	PRIMARY KEY (id)
 );
 

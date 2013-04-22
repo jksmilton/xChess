@@ -35,6 +35,31 @@ object Application extends Controller {
     TODO
   }
   
+  def resignGame(user : String, gameID : Long, appID: String){
+    
+    if(!DatabaseAccessor.authCheck(appID)){
+        
+        Ok("Application not authorised")
+        
+    } else {
+      
+    	var g = DatabaseAccessor.getGame(gameID)
+      
+    	if((g.turn == 1 && user.equals(g.black)) || (g.turn == 0 && user.equals(g.white))){
+      
+    	  DatabaseAccessor.addMove(gameID, user, "RESIG", 1 - g.turn)
+    	  
+    		Ok("Success");
+    		
+    	} else {
+    	  
+    	  Ok("Not your turn")
+    	  
+    	}
+    }
+    
+  }
+  
   def getUser(username : String, appID : String) = Action { request =>
     
     if(!DatabaseAccessor.authCheck(appID)){
@@ -246,8 +271,8 @@ object Application extends Controller {
 		    val player = new jcPlayerHuman(board.GetCurrentPlayer())
 		    
 		    newMove = player.GetMove(board, newMove, newMove.MoveType)
-		    
-		    DatabaseAccessor.addMove(gameID, user, xmove.move)
+		    board.ApplyMove(newMove)
+		    DatabaseAccessor.addMove(gameID, user, xmove.move, board.GetCurrentPlayer())
 		    
 		    Ok("Success")
 	    }
@@ -330,7 +355,7 @@ object Application extends Controller {
 	      var whiteH = DatabaseAccessor.getUser(g.white, DatabaseAccessor.AUTHKEY, true).handle
 	      var blackH = DatabaseAccessor.getUser(g.black, DatabaseAccessor.AUTHKEY, true).handle
 	      
-	      newGames ::= new Game(g.id, whiteH, blackH)
+	      newGames ::= new Game(g.id, whiteH, blackH, 0)
 	      
 	    }
     
