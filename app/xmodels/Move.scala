@@ -45,7 +45,7 @@ case class Move (move : String, player : String) {
   def parseSquare(pos : String) : Int = {
     
     val row = pos.charAt(0)
-    var result : Int = pos.charAt(1).toInt
+    var result : Int = pos.charAt(1).toString.toInt
     
     if(row.equals('A')){
       result += A
