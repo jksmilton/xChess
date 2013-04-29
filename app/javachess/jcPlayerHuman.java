@@ -91,10 +91,10 @@ public class jcPlayerHuman extends jcPlayer
         // If the move isn't a capture, it may be a castling attempt
         else if ( ( Mov.MovingPiece == jcBoard.WHITE_KING ) &&
                   ( ( Mov.SourceSquare - Mov.DestinationSquare ) == 2 ) )
-          Mov.MoveType = jcMove.MOVE_CASTLING_KINGSIDE;
+          Mov.MoveType = jcMove.MOVE_CASTLING_QUEENSIDE;
         else if ( ( Mov.MovingPiece == jcBoard.WHITE_KING ) &&
                   ( ( Mov.SourceSquare - Mov.DestinationSquare ) == -2 ) )
-          Mov.MoveType = jcMove.MOVE_CASTLING_QUEENSIDE;
+          Mov.MoveType = jcMove.MOVE_CASTLING_KINGSIDE;
         else
           Mov.MoveType = jcMove.MOVE_NORMAL;
       }
@@ -121,10 +121,10 @@ public class jcPlayerHuman extends jcPlayer
         }
         else if ( ( Mov.MovingPiece == jcBoard.BLACK_KING ) &&
                   ( ( Mov.SourceSquare - Mov.DestinationSquare ) == 2 ) )
-          Mov.MoveType = jcMove.MOVE_CASTLING_KINGSIDE;
+          Mov.MoveType = jcMove.MOVE_CASTLING_QUEENSIDE;
         else if ( ( Mov.MovingPiece == jcBoard.BLACK_KING ) &&
                   ( ( Mov.SourceSquare - Mov.DestinationSquare ) == -2 ) )
-          Mov.MoveType = jcMove.MOVE_CASTLING_QUEENSIDE;
+          Mov.MoveType = jcMove.MOVE_CASTLING_KINGSIDE;
         else
           Mov.MoveType = jcMove.MOVE_NORMAL;
       }
